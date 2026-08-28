@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendandlog — Kiosk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fffdf6; --ink:#111111; --lime:#c9f24b; --mint:#98e9d9; --butter:#f7d875;
+  --blush:#f9c2d8; --sky:#a9d5f4; --lilac:#c6b3f2; --peach:#f6aea0;
+  --muted:#5c5c54; --faint:#9b9b90;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+img{display:block}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:2px solid var(--ink)}
+.hdr-inner{max-width:1320px;margin:0 auto;padding:0 1.25rem;height:4.3rem;display:flex;align-items:center;gap:1rem}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;white-space:nowrap}
+.logo .mark{background:var(--ink);color:var(--lime);padding:.15rem .5rem;border-radius:.5rem;transform:rotate(-2deg)}
+.hdr-search{flex:1;display:flex;align-items:center;gap:.6rem;border:2px solid var(--ink);border-radius:.9rem;padding:.55rem 1rem;background:#fff;box-shadow:3px 3px 0 var(--ink)}
+.hdr-search svg{width:1rem;height:1rem;flex-shrink:0}
+.hdr-search input{flex:1;min-width:0;border:none;background:none;font:inherit;font-size:.9rem;font-weight:500;color:var(--ink)}
+.hdr-search input::placeholder{color:var(--faint)}
+.hdr-search input:focus{outline:none}
+.hdr-btn{background:var(--ink);color:var(--paper);font-weight:600;font-size:.88rem;padding:.65rem 1.25rem;border-radius:.9rem;box-shadow:3px 3px 0 var(--lime);white-space:nowrap;transition:transform 120ms,box-shadow 120ms}
+.hdr-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--lime)}
+.hdr-icon{width:2.6rem;height:2.6rem;border-radius:.9rem;border:2px solid var(--ink);display:grid;place-items:center;background:#fff;box-shadow:2px 2px 0 var(--ink)}
+.hdr-icon:hover{background:var(--butter)}
+.hdr-icon svg{width:1.1rem;height:1.1rem}
+
+/* ticker banner */
+.strip{border-bottom:2px solid var(--ink);background:var(--lime);overflow:hidden;white-space:nowrap;font-weight:600;font-size:.8rem;padding:.45rem 0}
+.strip-track{display:inline-block;animation:slide 40s linear infinite}
+.strip span{margin:0 1.4rem}
+.strip .x{font-weight:700}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* head */
+.head{max-width:1320px;margin:0 auto;padding:2.2rem 1.25rem .6rem;display:flex;align-items:flex-end;gap:1.2rem;flex-wrap:wrap}
+.head h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-.03em;margin:0;line-height:1.02}
+.head h1 .hl{background:var(--mint);padding:0 .35rem;border-radius:.4rem}
+.head .sub{color:var(--muted);font-size:.9rem;font-weight:500;margin:0 0 .3rem}
+.head .sort{margin-left:auto;display:flex;gap:.5rem}
+.sbtn{border:2px solid var(--ink);border-radius:.8rem;padding:.45rem .9rem;font-size:.8rem;font-weight:600;background:#fff;box-shadow:2px 2px 0 var(--ink)}
+.sbtn:hover{background:var(--butter)}
+.sbtn.on{background:var(--ink);color:var(--paper)}
+
+/* masonry grid */
+.wrap{max-width:1320px;margin:0 auto;padding:1.4rem 1.25rem 4rem}
+.grid{columns:5 240px;column-gap:1rem}
+.card{break-inside:avoid;margin-bottom:1rem;border:2px solid var(--ink);border-radius:1.1rem;overflow:hidden;background:#fff;box-shadow:4px 4px 0 var(--ink);cursor:pointer;transition:transform 140ms,box-shadow 140ms;position:relative}
+.card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.card-media{position:relative;aspect-ratio:4/3;background:var(--paper)}
+.card-media img{width:100%;height:100%;object-fit:cover}
+.sticker{position:absolute;font-size:.68rem;font-weight:700;letter-spacing:.02em;padding:.28rem .6rem;border-radius:.6rem;border:2px solid var(--ink);background:#fff;transform:rotate(-3deg)}
+.sticker.tl{top:.6rem;left:.6rem}
+.sticker.tr{top:.6rem;right:.6rem;transform:rotate(2deg)}
+.sticker.sold{background:var(--ink);color:var(--lime);font-size:.75rem;padding:.4rem .75rem;transform:rotate(8deg);top:38%;left:50%;translate:-50% -50%;letter-spacing:.1em}
+.card:nth-child(3n) .sticker.tl{background:var(--blush)}
+.card:nth-child(3n+1) .sticker.tl{background:var(--butter)}
+.card:nth-child(4n+2) .sticker.tl{background:var(--sky)}
+.card-body{padding:.85rem .9rem .5rem}
+.tint{background:var(--mint)}
+.card:nth-child(4n+1) .card-body{background:var(--butter)}
+.card:nth-child(4n+2) .card-body{background:#fff}
+.card:nth-child(4n+3) .card-body{background:var(--blush)}
+.card:nth-child(4n) .card-body{background:var(--sky)}
+.price-line{display:flex;align-items:baseline;gap:.5rem}
+.price{font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.price-old{font-size:.8rem;color:var(--muted);text-decoration:line-through;font-weight:500}
+.drop{font-size:.68rem;font-weight:700;background:var(--ink);color:var(--lime);padding:.14rem .45rem;border-radius:.45rem}
+.card-title{font-size:.9rem;font-weight:600;line-height:1.3;margin-top:.15rem}
+.rep{display:inline-flex;align-items:center;gap:.35rem;margin-top:.55rem;font-size:.74rem;font-weight:600}
+.rep .star{background:#fff;border:2px solid var(--ink);border-radius:9999px;padding:.12rem .55rem;font-size:.68rem}
+.rep b{font-weight:700}
+.receipt{margin:.7rem -.9rem -.5rem;padding:.55rem .9rem;border-top:2px dashed var(--ink);font-size:.72rem;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.65)}
+.receipt svg{width:.8rem;height:.8rem;flex-shrink:0;color:var(--ink)}
+.receipt b{color:var(--ink)}
+.receipt .when{margin-left:auto;font-weight:700;color:var(--ink)}
+
+/* soul block */
+.soul{max-width:1320px;margin:1rem auto 0;padding:0 1.25rem 3rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.soul-card{border:2px solid var(--ink);border-radius:1.1rem;padding:1.3rem 1.4rem;box-shadow:4px 4px 0 var(--ink)}
+.soul-card h3{margin:.2rem 0 .4rem;font-size:1.05rem;font-weight:700}
+.soul-card p{margin:0;font-size:.84rem;color:var(--muted);line-height:1.5}
+.soul-card .big{font-size:2rem;font-weight:700;letter-spacing:-.03em}
+.soul-card.c1{background:var(--mint)}
+.soul-card.c2{background:var(--lilac)}
+.soul-card.c3{background:var(--peach)}
+@media(max-width:800px){.soul{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="logo" href="index.html"><span class="mark">vdl</span>vendandlog</a>
+    <label class="hdr-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input placeholder="what are you hunting for?">
+    </label>
+    <button class="hdr-icon" title="Wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+    <button class="hdr-btn">+ Post it</button>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="strip-track">
+    <span class="x">SOLD ≠ GONE</span><span>·</span><span>48,112 listings archived with full history</span><span>·</span><span class="x">CHATS GO PUBLIC AFTER SALE</span><span>·</span><span>unless someone unmasks early</span><span>·</span><span class="x">REP IS EARNED IN PUBLIC</span><span>·</span><span>two-sided ratings, evidence attached</span><span>·</span>
+    <span class="x">SOLD ≠ GONE</span><span>·</span><span>48,112 listings archived with full history</span><span>·</span><span class="x">CHATS GO PUBLIC AFTER SALE</span><span>·</span><span>unless someone unmasks early</span><span>·</span><span class="x">REP IS EARNED IN PUBLIC</span><span>·</span><span>two-sided ratings, evidence attached</span><span>·</span>
+  </div>
+</div>
+
+<div class="head">
+  <div>
+    <h1>The <span class="hl">bazaar</span>,<br>fully on the record.</h1>
+  </div>
+  <p class="sub">Bikes near Kreuzberg · 1,204 live listings</p>
+  <div class="sort">
+    <button class="sbtn on">Hot near you</button>
+    <button class="sbtn">Drops</button>
+    <button class="sbtn">Fresh</button>
+    <button class="sbtn">High rep</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="grid">
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">LIKE NEW</span>
+        <span class="sticker tr">↓ 17%</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$340</span><span class="price-old">$410</span><span class="drop">DROP</span></div>
+        <div class="card-title">Canyon Endurace AL 7.0 — 54cm, tune-up done</div>
+        <div class="rep"><span class="star">jana.b</span><b>412 rep</b> · 98%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><b>Price dropped</b> after real negotiation<span class="when">2d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">LIKE NEW</span>
+        <span class="sticker tr">4 × WISHLIST</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$890</span></div>
+        <div class="card-title">Ribble CGR AL gravel — GRX, 200 km total</div>
+        <div class="rep"><span class="star">gravelgus</span><b>231 rep</b> · 97%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg><b>Listed 25m ago</b> — your wishlist matched<span class="when">25m</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker sold">SOLD — CHATS PUBLIC</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$275</span><span class="drop">RECORD</span></div>
+        <div class="card-title">Cube Attention MTB size M — read the whole story</div>
+        <div class="rep"><span class="star">lea_rides</span><b>1,022 rep</b> · 100%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><b>5 conversations</b> now public — evidence intact<span class="when">6d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">GOOD</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$120</span></div>
+        <div class="card-title">Vintage Peugeot — single-speed conversion</div>
+        <div class="rep"><span class="star">marat_77</span><b>38 rep</b> · new seller</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><b>3 chats open</b> — go public on sale<span class="when">1h</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">TOURING</span>
+        <span class="sticker tr">↓ 17%</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$150</span><span class="price-old">$180</span><span class="drop">DROP</span></div>
+        <div class="card-title">Touring bike with panniers — serviced, ready</div>
+        <div class="rep"><span class="star">cityhop</span><b>674 rep</b> · 98%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><b>Price dropped</b> $180 → $150<span class="when">5h</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1505705694340-019e1e335916?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">FAIR · $60</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$60</span></div>
+        <div class="card-title">City bike 28" — basket, lights, honest rust</div>
+        <div class="rep"><span class="star">tomsfamily</span><b>89 rep</b> · 95%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg><b>Listed</b> — 2 photos, condition noted<span class="when">3h</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">GIG-READY</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$450</span></div>
+        <div class="card-title">Fender Telecaster MIM — new strings, gig bag</div>
+        <div class="rep"><span class="star">stringsnthings</span><b>201 rep</b> · 96%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><b>Note added</b> — restring included<span class="when">4h</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">BATTERY 92%</span>
+        <span class="sticker tr">↓ 11%</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$620</span><span class="price-old">$700</span><span class="drop">DROP</span></div>
+        <div class="card-title">MacBook Air M1 8/256 — AppleCare till '26</div>
+        <div class="rep"><span class="star">byte_berlin</span><b>543 rep</b> · 97%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><b>Price dropped</b> — negotiation public<span class="when">3d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=640&h=480&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="sticker tl">WOOL SOFA</span>
+      </div>
+      <div class="card-body">
+        <div class="price-line"><span class="price">$240</span></div>
+        <div class="card-title">Olive wool 3-seat sofa — photos of every seam</div>
+        <div class="rep"><span class="star">woodhaus</span><b>310 rep</b> · 99%</div>
+        <div class="receipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><b>Photos added</b> — fabric close-ups<span class="when">1d</span></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="soul">
+    <div class="soul-card c1">
+      <div class="big">0</div>
+      <h3>deletions. ever.</h3>
+      <p>Sold, expired, withdrawn — everything stays browsable. The history is the product.</p>
+    </div>
+    <div class="soul-card c2">
+      <div class="big">2-way</div>
+      <h3>reputation</h3>
+      <p>Sellers and buyers both get rated, both get flagged. Karma you can audit down to the chat log.</p>
+    </div>
+    <div class="soul-card c3">
+      <div class="big">$0</div>
+      <h3>platform take</h3>
+      <p>No payments here. You talk, you agree, you meet. The record keeps everyone honest.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll('.sbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelector('.sbtn.on').classList.remove('on');b.classList.add('on');}));
+</script>
+</body>
+</html>

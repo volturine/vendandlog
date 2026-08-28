@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendandlog — Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#faf8f4; --ink:#1c1917; --muted:#78716c; --faint:#a8a29e;
+  --line:#e7e2da; --accent:#1d5c4d; --accent-soft:#e8f0ed; --gold:#b08d57;
+  --card-shadow:0 1px 2px rgba(28,25,23,.04),0 8px 24px rgba(28,25,23,.06);
+  --card-shadow-hover:0 2px 4px rgba(28,25,23,.06),0 16px 40px rgba(28,25,23,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+img{display:block}
+.serif{font-family:'Fraunces',Georgia,serif}
+
+/* pill nav */
+.nav{position:sticky;top:0;z-index:50;display:flex;justify-content:center;padding:.9rem 1.25rem 0}
+.nav-inner{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:9999px;padding:.45rem .6rem .45rem 1.35rem;box-shadow:0 4px 20px rgba(28,25,23,.08);width:100%;max-width:880px}
+.logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;letter-spacing:-.01em;white-space:nowrap}
+.logo i{color:var(--accent);font-style:normal}
+.nav-search{flex:1;display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:9999px;padding:.5rem 1.1rem;color:var(--muted);transition:border-color 150ms,box-shadow 150ms}
+.nav-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.nav-search input{flex:1;min-width:0;border:none;background:none;font:inherit;font-size:.85rem;color:var(--ink)}
+.nav-search input::placeholder{color:var(--faint)}
+.nav-search svg{width:.95rem;height:.95rem;flex-shrink:0}
+.nav-cta{background:var(--accent);color:#fff;border-radius:9999px;padding:.6rem 1.15rem;font-size:.84rem;font-weight:600;white-space:nowrap;transition:background 150ms}
+.nav-cta:hover{background:#164539}
+.nav-icon{width:2.3rem;height:2.3rem;border-radius:9999px;display:grid;place-items:center;color:var(--muted)}
+.nav-icon:hover{background:#f5f2ec;color:var(--ink)}
+.nav-icon svg{width:1.1rem;height:1.1rem}
+
+/* hero */
+.hero{max-width:1200px;margin:0 auto;padding:3.5rem 1.5rem 2.2rem;text-align:center}
+.hero .over{font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1.1rem}
+.hero h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(2.2rem,4.6vw,3.6rem);line-height:1.12;letter-spacing:-.02em;margin:0 auto 1rem;max-width:18ch}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.hero p{color:var(--muted);font-size:.95rem;max-width:52ch;margin:0 auto;line-height:1.65}
+.hero .stat-line{margin-top:1.4rem;font-size:.8rem;color:var(--faint)}
+.hero .stat-line b{color:var(--ink);font-weight:600}
+
+/* categories */
+.cats{display:flex;justify-content:center;gap:2.2rem;flex-wrap:wrap;padding:0 1.5rem 1rem;max-width:1200px;margin:0 auto}
+.cat{font-size:.86rem;font-weight:500;color:var(--muted);padding-bottom:.35rem;border-bottom:1.5px solid transparent;transition:color 150ms,border-color 150ms}
+.cat:hover{color:var(--ink);border-color:var(--gold)}
+.cat.on{color:var(--ink);border-color:var(--ink);font-weight:600}
+
+/* grid */
+.wrap{max-width:1240px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+.toolbar{display:flex;align-items:center;gap:.75rem;margin:0 0 1.4rem;color:var(--faint);font-size:.82rem}
+.toolbar .count b{color:var(--ink);font-weight:600}
+.toolbar select{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:.6rem;padding:.5rem .8rem;font:inherit;font-size:.82rem;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.8rem 1.4rem}
+
+/* card */
+.card{cursor:pointer;position:relative}
+.card-media{position:relative;border-radius:1.1rem;overflow:hidden;aspect-ratio:4/5;background:#efeae2;box-shadow:var(--card-shadow);transition:box-shadow 180ms}
+.card:hover .card-media{box-shadow:var(--card-shadow-hover)}
+.card-media img{width:100%;height:100%;object-fit:cover;transition:transform 400ms ease}
+.card:hover .card-media img{transform:scale(1.03)}
+.stamp{position:absolute;top:.8rem;left:.8rem;background:rgba(250,248,244,.92);backdrop-filter:blur(4px);color:var(--ink);font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:.32rem .65rem;border-radius:.4rem}
+.stamp.sold{background:var(--ink);color:var(--cream)}
+.fav{position:absolute;bottom:.8rem;right:.8rem;width:2.2rem;height:2.2rem;border-radius:9999px;background:rgba(250,248,244,.92);display:grid;place-items:center;color:var(--muted)}
+.fav:hover{color:var(--gold)}
+.fav svg{width:1rem;height:1rem}
+.card-body{padding:.9rem .2rem 0}
+.card-title{font-family:'Fraunces',serif;font-size:1.02rem;font-weight:500;line-height:1.35;letter-spacing:-.005em}
+.card-where{font-size:.76rem;color:var(--faint);margin-top:.25rem}
+.card-price{display:flex;align-items:baseline;gap:.55rem;margin-top:.55rem}
+.price{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600}
+.price-old{font-size:.78rem;color:var(--faint);text-decoration:line-through}
+.below{font-size:.7rem;font-weight:600;color:var(--accent)}
+.seller{display:flex;align-items:center;gap:.5rem;margin-top:.7rem;font-size:.78rem;color:var(--muted)}
+.seller .ava{width:1.5rem;height:1.5rem;border-radius:9999px;background:linear-gradient(135deg,#d8c8ae,#b08d57);color:#4a3520;font-size:.55rem;font-weight:700;display:grid;place-items:center}
+.seller b{color:var(--ink);font-weight:600}
+.seller .dot{width:.42rem;height:.42rem;border-radius:9999px;background:var(--accent)}
+.card-log{display:flex;align-items:center;gap:.45rem;margin-top:.7rem;padding-top:.65rem;border-top:1px solid var(--line);font-size:.74rem;color:var(--faint)}
+.card-log svg{width:.8rem;height:.8rem;color:var(--gold);flex-shrink:0}
+.card-log b{color:var(--muted);font-weight:500}
+.card-log .when{margin-left:auto}
+
+/* provenance strip */
+.prov{max-width:1240px;margin:1rem auto 0;padding:0 1.5rem 4rem}
+.prov-inner{display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem 2.5rem;border:1px solid var(--line);border-radius:1.25rem;padding:1.6rem 2rem;background:linear-gradient(120deg,#fff, #f6f1e8)}
+.prov h3{font-family:'Fraunces',serif;font-weight:500;font-size:1.25rem;margin:0}
+.prov p{margin:.25rem 0 0;font-size:.82rem;color:var(--muted)}
+.prov .l{flex:1;min-width:220px}
+.prov .r{display:flex;gap:2rem}
+.prov .r div{text-align:center}
+.prov .r .v{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;color:var(--accent)}
+.prov .r .k{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:.2rem}
+@media(max-width:640px){.nav-inner{padding-left:.8rem;gap:.5rem}.nav-cta{display:none}.cats{gap:1.2rem}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html">vendand<i>log</i></a>
+    <label class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input placeholder="Try “walnut sideboard” or “Canyon 54”">
+    </label>
+    <button class="nav-icon" title="Wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+    <button class="nav-cta">List something</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="over">A public bazaar · est. 2026</div>
+  <h1>Everything sold.<br><i>Nothing forgotten.</i></h1>
+  <p>Every listing, negotiation and outcome stays public — forever. Trust here isn't a promise, it's a record you can inspect yourself.</p>
+  <div class="stat-line"><b>12,408</b> active listings · <b>48,112</b> archived with full history · <b>0</b> deletions this year</div>
+</header>
+
+<div class="cats">
+  <button class="cat on">All</button>
+  <button class="cat">Bikes</button>
+  <button class="cat">Furniture</button>
+  <button class="cat">Electronics</button>
+  <button class="cat">Instruments</button>
+  <button class="cat">Books</button>
+  <button class="cat">Wardrobe</button>
+</div>
+
+<main class="wrap">
+  <div class="toolbar">
+    <span class="count"><b>1,204</b> pieces · each with its own history</span>
+    <select><option>Curated · recently updated</option><option>Price: low to high</option><option>Most events in log</option></select>
+  </div>
+
+  <div class="grid">
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Serial verified</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Canyon Endurace AL 7.0, 54cm</div>
+        <div class="card-where">Kreuzberg · 2 km away</div>
+        <div class="card-price"><span class="price">$340</span><span class="price-old">$410</span><span class="below">17% below last ask</span></div>
+        <div class="seller"><span class="ava">JB</span><b>jana.b</b><span class="dot"></span><span>412 trust · 98%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><span><b>Price dropped</b> $410 → $340</span><span class="when">2d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Service history</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Ribble CGR AL — GRX groupset</div>
+        <div class="card-where">Prenzlauer Berg · 3 km</div>
+        <div class="card-price"><span class="price">$890</span></div>
+        <div class="seller"><span class="ava">GG</span><b>gravelgus</b><span class="dot"></span><span>231 trust · 97%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg><span><b>Listed</b> — matched 4 wishlists</span><span class="when">25m</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp sold">Sold — record public</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Cube Attention MTB, size M</div>
+        <div class="card-where">Friedrichshain · 7 km</div>
+        <div class="card-price"><span class="price">$275</span><span class="below">sold in 6 days</span></div>
+        <div class="seller"><span class="ava">LR</span><b>lea_rides</b><span class="dot"></span><span>1,022 trust · 100%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span><b>Sold</b> — 5 conversations now public</span><span class="when">6d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Delivery optional</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Olive wool three-seat sofa</div>
+        <div class="card-where">Schöneberg · 5 km</div>
+        <div class="card-price"><span class="price">$240</span></div>
+        <div class="seller"><span class="ava">WH</span><b>woodhaus</b><span class="dot"></span><span>310 trust · 99%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span><b>Photo added</b> — fabric close-ups</span><span class="when">1d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Setup verified</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Fender Telecaster, Mexican-made</div>
+        <div class="card-where">Mitte · 1 km</div>
+        <div class="card-price"><span class="price">$450</span></div>
+        <div class="seller"><span class="ava">SN</span><b>stringsnthings</b><span class="dot"></span><span>201 trust · 96%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><span><b>Note added</b> — new strings included</span><span class="when">4h</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Battery 92%</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">MacBook Air M1, 8/256</div>
+        <div class="card-where">Wedding · 6 km</div>
+        <div class="card-price"><span class="price">$620</span><span class="price-old">$700</span><span class="below">after negotiation</span></div>
+        <div class="seller"><span class="ava">BB</span><b>byte_berlin</b><span class="dot"></span><span>543 trust · 97%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg><span><b>Price dropped</b> $700 → $620</span><span class="when">3d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Origin verified</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Lounge chair, walnut &amp; wool</div>
+        <div class="card-where">Charlottenburg · 8 km</div>
+        <div class="card-price"><span class="price">$180</span></div>
+        <div class="seller"><span class="ava">NS</span><b>nord_studio</b><span class="dot"></span><span>156 trust · 100%</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span><b>Verified</b> — maker's stamp checked</span><span class="when">2d</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1505705694340-019e1e335916?w=640&h=800&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="stamp">Honest condition</span>
+        <button class="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.5-9C1 8.5 2.5 5 6 5c2.2 0 3.5 1.2 4 2 .5-.8 1.8-2 4-2 3.5 0 5 3.5 3.5 7-2 4.4-9.5 9-9.5 9z"/></svg></button>
+      </div>
+      <div class="card-body">
+        <div class="card-title">City bike 28", basket &amp; lights</div>
+        <div class="card-where">Wedding · 6 km</div>
+        <div class="card-price"><span class="price">$60</span></div>
+        <div class="seller"><span class="ava">TF</span><b>tomsfamily</b><span class="dot"></span><span>89 trust · new-ish</span></div>
+        <div class="card-log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg><span><b>Listed</b> — 2 photos, honest rust note</span><span class="when">3h</span></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="prov" style="padding:0;margin-top:3rem">
+    <div class="prov-inner">
+      <div class="l">
+        <h3>Provenance, not promises.</h3>
+        <p>Open any listing to read its full negotiation history, past sale prices and seller conduct — public by default.</p>
+      </div>
+      <div class="r">
+        <div><div class="v">48,112</div><div class="k">archived</div></div>
+        <div><div class="v">100%</div><div class="k">inspectable</div></div>
+        <div><div class="v">0</div><div class="k">quiet deletions</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll('.cat').forEach(c=>c.addEventListener('click',()=>{document.querySelector('.cat.on').classList.remove('on');c.classList.add('on');}));
+</script>
+</body>
+</html>

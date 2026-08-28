@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendandlog — Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b; --panel:#121214; --panel-2:#161618; --line:#232326; --line-2:#2c2c30;
+  --text:#f2f2f2; --muted:#9b9ba1; --faint:#6b6b72;
+  --lime:#c8f542; --lime-dim:rgba(200,245,66,.12); --up:#4ade80; --down:#f87171; --amber:#fbbf24;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+img{display:block}
+.mono{font-family:var(--mono)}
+
+/* ticker */
+.ticker{border-bottom:1px solid var(--line);background:#0d0d0f;overflow:hidden;white-space:nowrap;font-family:var(--mono);font-size:.72rem;color:var(--muted);padding:.45rem 0}
+.ticker-track{display:inline-block;animation:tick 60s linear infinite}
+.ticker span{margin:0 1.6rem}
+.ticker .up{color:var(--up)}
+.ticker .down{color:var(--down)}
+.ticker .sym{color:var(--faint)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(10,10,11,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hdr-inner{max-width:1380px;margin:0 auto;padding:0 1.25rem;height:3.6rem;display:flex;align-items:center;gap:1rem}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:.98rem;white-space:nowrap}
+.logo .mark{width:1.7rem;height:1.7rem;border-radius:.45rem;background:var(--lime);color:#0a0a0b;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:.85rem}
+.logo em{font-style:normal;color:var(--lime)}
+.hdr-search{flex:1;max-width:30rem;display:flex;align-items:center;gap:.55rem;background:var(--panel);border:1px solid var(--line);border-radius:.55rem;padding:.5rem .85rem;color:var(--faint);transition:border-color 150ms}
+.hdr-search:focus-within{border-color:var(--lime)}
+.hdr-search svg{width:.95rem;height:.95rem}
+.hdr-search input{flex:1;min-width:0;border:none;background:none;font:inherit;font-size:.85rem;color:var(--text)}
+.hdr-search input::placeholder{color:var(--faint)}
+.hdr-search .kbd{font-family:var(--mono);font-size:.65rem;border:1px solid var(--line-2);border-radius:.3rem;padding:.1rem .35rem;color:var(--faint)}
+.hdr-stats{display:flex;gap:1.6rem;margin-left:auto}
+.hdr-stats .s{text-align:right}
+.hdr-stats .v{font-family:var(--mono);font-size:.88rem;font-weight:600}
+.hdr-stats .k{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.hdr-btn{background:var(--lime);color:#0a0a0b;font-weight:600;font-size:.82rem;padding:.5rem 1rem;border-radius:.5rem;white-space:nowrap}
+.hdr-btn:hover{filter:brightness(1.08)}
+
+/* market summary */
+.wrap{max-width:1380px;margin:0 auto;padding:1.4rem 1.25rem 4rem}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.4rem}
+.sbox{background:var(--panel);border:1px solid var(--line);border-radius:.65rem;padding:.9rem 1.1rem}
+.sbox .v{font-family:var(--mono);font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.sbox .v small{font-size:.72rem;color:var(--up);margin-left:.4rem}
+.sbox .k{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-top:.3rem}
+.sbox.hl{border-color:rgba(200,245,66,.35);background:linear-gradient(180deg,var(--lime-dim),var(--panel))}
+
+/* toolbar */
+.toolbar{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.toolbar h1{font-size:1.02rem;font-weight:600;margin:0;font-family:var(--mono);letter-spacing:-.01em}
+.toolbar h1 small{color:var(--faint);font-weight:400}
+.pill{font-size:.74rem;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:9999px;padding:.35rem .8rem;transition:border-color 120ms,color 120ms}
+.pill:hover{color:var(--text)}
+.pill.on{background:var(--lime-dim);border-color:rgba(200,245,66,.4);color:var(--lime)}
+.toolbar .right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+.viewkey{font-family:var(--mono);font-size:.68rem;color:var(--faint)}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.75rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:.65rem;overflow:hidden;cursor:pointer;transition:border-color 140ms,transform 140ms}
+.card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.card.sold{border-color:rgba(74,222,128,.25)}
+.card-media{position:relative;aspect-ratio:16/10;background:var(--panel-2)}
+.card-media img{width:100%;height:100%;object-fit:cover;opacity:.9}
+.cond{position:absolute;top:.55rem;left:.55rem;font-family:var(--mono);font-size:.62rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:rgba(10,10,11,.8);backdrop-filter:blur(4px);padding:.22rem .5rem;border-radius:.35rem;color:var(--muted)}
+.cond.hot{color:var(--lime)}
+.soldflag{position:absolute;top:.55rem;right:.55rem;font-family:var(--mono);font-size:.62rem;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:var(--up);padding:.22rem .5rem;border-radius:.35rem}
+.card-body{padding:.75rem .85rem .6rem}
+.card-title{font-size:.84rem;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.ask-row{display:flex;align-items:baseline;gap:.55rem;margin-top:.5rem}
+.ask-lbl{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.ask{font-family:var(--mono);font-size:1.05rem;font-weight:600;letter-spacing:-.02em}
+.ask-old{font-family:var(--mono);font-size:.72rem;color:var(--faint);text-decoration:line-through}
+.chg{font-family:var(--mono);font-size:.7rem;font-weight:600;color:var(--up)}
+.chg.neg{color:var(--down)}
+.spark{margin:.5rem 0 .1rem}
+.seller-row{display:flex;align-items:center;gap:.5rem;padding:.55rem .85rem;border-top:1px solid var(--line);font-size:.7rem;color:var(--muted)}
+.seller-row .dot{width:.42rem;height:.42rem;border-radius:9999px;background:var(--up)}
+.seller-row .dot.mid{background:var(--amber)}
+.seller-row b{color:var(--text);font-weight:600}
+.seller-row .rel{margin-left:auto;font-family:var(--mono);color:var(--up)}
+.log-row{display:flex;align-items:center;gap:.45rem;padding:.4rem .85rem .55rem;border-top:1px dashed var(--line);font-family:var(--mono);font-size:.64rem;color:var(--faint)}
+.log-row b{color:var(--muted);font-weight:500}
+.log-row .n{margin-left:auto;border:1px solid var(--line-2);border-radius:.3rem;padding:.05rem .35rem}
+.hash{font-family:var(--mono);font-size:.62rem;color:var(--faint)}
+
+/* ledger footer */
+.ledger{margin-top:1.8rem;background:var(--panel);border:1px solid var(--line);border-radius:.65rem;padding:1.1rem 1.3rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.ledger .mono-lbl{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.ledger .entry{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.ledger .entry b{color:var(--text);font-weight:500}
+.ledger .ok{color:var(--up)}
+@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.hdr-stats{display:none}}
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span><b class="sym">VDL:48291</b> ASK $410 → <b class="down">$340</b> · price drop · jana.b</span>
+    <span><b class="sym">VDL:47991</b> SOLD <b class="up">$275</b> · 5 conversations public</span>
+    <span><b class="sym">VDL:48877</b> LISTED <b>$890</b> · matched 4 wishlists</span>
+    <span><b class="sym">USER:jana.b</b> TRUST <b class="up">412</b> +6 · verified serial</span>
+    <span><b class="sym">VDL:41203</b> UNHIDDEN <b class="down">chat public</b> · buyer request</span>
+    <span><b class="sym">VDL:48291</b> ASK $410 → <b class="down">$340</b> · price drop · jana.b</span>
+    <span><b class="sym">VDL:47991</b> SOLD <b class="up">$275</b> · 5 conversations public</span>
+    <span><b class="sym">VDL:48877</b> LISTED <b>$890</b> · matched 4 wishlists</span>
+    <span><b class="sym">USER:jana.b</b> TRUST <b class="up">412</b> +6 · verified serial</span>
+    <span><b class="sym">VDL:41203</b> UNHIDDEN <b class="down">chat public</b> · buyer request</span>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="logo" href="index.html"><span class="mark">vl</span>vendand<em>log</em>·terminal</a>
+    <label class="hdr-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input placeholder="Search listings, sellers, event hashes…">
+      <span class="kbd">/</span>
+    </label>
+    <div class="hdr-stats">
+      <div class="s"><div class="v">12,408</div><div class="k">active</div></div>
+      <div class="s"><div class="v" style="color:var(--lime)">48,112</div><div class="k">on record</div></div>
+      <div class="s"><div class="v">98.2%</div><div class="k">meetup success</div></div>
+    </div>
+    <button class="hdr-btn">New listing</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="summary">
+    <div class="sbox hl"><div class="v">$275 <small>LAST CITY SALE</small></div><div class="k">Cube Attention MTB · #47991</div></div>
+    <div class="sbox"><div class="v">1,204</div><div class="k">bikes on ask</div></div>
+    <div class="sbox"><div class="v">6,911 <small>+124 today</small></div><div class="k">public conversations</div></div>
+    <div class="sbox"><div class="v">312 <small>flagged</small></div><div class="k">scam flags upheld, all-time</div></div>
+  </div>
+
+  <div class="toolbar">
+    <h1>BIKES <small>/ category #a1</small></h1>
+    <button class="pill on">Highest interest</button>
+    <button class="pill">Price drops</button>
+    <button class="pill">New listings</button>
+    <button class="pill">Sold · public record</button>
+    <div class="right">
+      <span class="viewkey">SORT: interest ↓</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond hot">LIKE NEW</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Canyon Endurace AL 7.0 — 54cm, carbon fork</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$340</span><span class="ask-old">$410</span><span class="chg">-17.0%</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,10 40,10 40,16 100,16 100,30 160,30 200,28" fill="none" stroke="#c8f542" stroke-width="1.6"/>
+          <circle cx="200" cy="28" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>jana.b</b><span class="mono">412</span><span>· 98%</span><span class="rel">99.1% rel</span></div>
+      <div class="log-row"><b>PRICE_DROP</b><span class="hash">#e91f02</span><span class="n">LOG 7</span></div>
+    </article>
+
+    <article class="card sold">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">GOOD</span>
+        <span class="soldflag">SOLD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Cube Attention MTB size M — new chain + pads</div>
+        <div class="ask-row"><span class="ask-lbl">last</span><span class="ask" style="color:var(--up)">$275</span><span class="chg">ask met</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,8 60,8 60,22 140,22 140,30 200,30" fill="none" stroke="#4ade80" stroke-width="1.6"/>
+          <circle cx="200" cy="30" r="2.4" fill="#4ade80"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>lea_rides</b><span class="mono">1,022</span><span>· 100%</span><span class="rel">99.8% rel</span></div>
+      <div class="log-row"><b>SALE</b><span class="hash">#47c001</span><span class="n">5 CHATS PUBLIC</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond hot">LIKE NEW</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Ribble CGR AL — Shimano GRX, 200 km</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$890</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,30 80,30 80,28 200,26" fill="none" stroke="#6b6b72" stroke-width="1.6"/>
+          <circle cx="200" cy="26" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>gravelgus</b><span class="mono">231</span><span>· 97%</span><span class="rel">98.4% rel</span></div>
+      <div class="log-row"><b>LISTED</b><span class="hash">#04b2c8</span><span class="n">4 WISHLISTS</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">GOOD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Vintage Peugeot — single-speed conversion</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$120</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,28 200,28" fill="none" stroke="#6b6b72" stroke-width="1.6"/>
+          <circle cx="200" cy="28" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot mid"></span><b>marat_77</b><span class="mono">38</span><span>· new</span><span class="rel" style="color:var(--amber)">92.0% rel</span></div>
+      <div class="log-row"><b>CHATS_OPEN</b><span class="hash">×3</span><span class="n">PUBLIC ON SALE</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">GOOD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Touring bike with panniers — fully serviced</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$150</span><span class="ask-old">$180</span><span class="chg">-16.7%</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,8 120,8 120,28 200,28" fill="none" stroke="#c8f542" stroke-width="1.6"/>
+          <circle cx="200" cy="28" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>cityhop</b><span class="mono">674</span><span>· 98%</span><span class="rel">99.0% rel</span></div>
+      <div class="log-row"><b>PRICE_DROP</b><span class="hash">#77aa10</span><span class="n">LOG 4</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">GOOD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">MacBook Air M1 8/256 — battery 92%</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$620</span><span class="ask-old">$700</span><span class="chg">-11.4%</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,10 90,10 90,26 200,26" fill="none" stroke="#c8f542" stroke-width="1.6"/>
+          <circle cx="200" cy="26" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>byte_berlin</b><span class="mono">543</span><span>· 97%</span><span class="rel">98.9% rel</span></div>
+      <div class="log-row"><b>PRICE_DROP</b><span class="hash">#a3f519</span><span class="n">LOG 5</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">GOOD</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Fender Telecaster MIM — gig bag, new strings</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$450</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,30 200,30" fill="none" stroke="#6b6b72" stroke-width="1.6"/>
+          <circle cx="200" cy="30" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>stringsnthings</b><span class="mono">201</span><span>· 96%</span><span class="rel">98.1% rel</span></div>
+      <div class="log-row"><b>NOTE_ADD</b><span class="hash">#12d40e</span><span class="n">LOG 3</span></div>
+    </article>
+
+    <article class="card">
+      <div class="card-media">
+        <img src="https://images.unsplash.com/photo-1505705694340-019e1e335916?w=640&h=400&fit=crop&q=75&auto=format" alt="" loading="lazy">
+        <span class="cond">FAIR</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">City bike 28" — basket &amp; lights included</div>
+        <div class="ask-row"><span class="ask-lbl">ask</span><span class="ask">$60</span></div>
+        <svg class="spark" viewBox="0 0 200 36" width="100%" height="36" preserveAspectRatio="none">
+          <polyline points="0,30 200,30" fill="none" stroke="#6b6b72" stroke-width="1.6"/>
+          <circle cx="200" cy="30" r="2.4" fill="#c8f542"/>
+        </svg>
+      </div>
+      <div class="seller-row"><span class="dot"></span><b>tomsfamily</b><span class="mono">89</span><span>· 95%</span><span class="rel">97.2% rel</span></div>
+      <div class="log-row"><b>LISTED</b><span class="hash">#9d31bb</span><span class="n">LOG 1</span></div>
+    </article>
+  </div>
+
+  <div class="ledger">
+    <span class="mono-lbl">Public ledger</span>
+    <span class="entry"><b>12,408</b> active</span>
+    <span class="entry"><b>48,112</b> archived</span>
+    <span class="entry"><b>0</b> deletions</span>
+    <span class="entry ok">every event hash-verifiable</span>
+    <span class="entry" style="margin-left:auto;color:var(--faint)">vdl://registry/bikes</span>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{document.querySelector('.pill.on').classList.remove('on');p.classList.add('on');}));
+</script>
+</body>
+</html>
