@@ -1,0 +1,24 @@
+.DS_Store
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+.vite/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.mypy_cache/
+
+# Tool caches / local runtime
+.runtime/
+.artifacts/
+
+# Local env & editor config
+.env
+.env.local
+.vscode/mcp.json
+.opencode/opencode.jsonc
