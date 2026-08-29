@@ -4,6 +4,7 @@
 node_modules/
 dist/
 build/
+.svelte-kit/
 .vite/
 
 # Python
@@ -16,6 +17,10 @@ __pycache__/
 # Tool caches / local runtime
 .runtime/
 .artifacts/
+
+# Local data
+*.db
+.vite/
 
 # Local env & editor config
 .env
