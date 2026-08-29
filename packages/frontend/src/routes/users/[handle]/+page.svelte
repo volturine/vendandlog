@@ -48,7 +48,7 @@
 	<title>{user.name} (@{user.handle}) — Vendandlog</title>
 </svelte:head>
 
-<main class="mx-auto max-w-4xl px-5 pb-20">
+<main class="mx-auto max-w-4xl px-4 pb-20 sm:px-5">
 	<header class="mb-6 mt-4 flex flex-wrap items-center gap-4">
 		<span class="grid h-16 w-16 place-items-center rounded-full text-xl font-bold" style="background:{user.avatar_color};color:#fff">
 			{user.name.split(' ').map((p) => p[0]).slice(0, 2).join('')}
@@ -81,7 +81,7 @@
 		</form>
 	{/if}
 
-	<section class="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+	<section class="mb-7 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
 		<div class="rounded-xl border border-[var(--vdl-border-soft)] bg-[var(--vdl-surface)] p-4">
 			<div class="text-2xl font-bold tracking-tight" class:text-[var(--vdl-success)]={user.flags_upheld === 0}>{user.trust_score}</div>
 			<div class="mt-0.5 text-[0.72rem] text-[var(--vdl-text-faint)]">trust score, earned in public</div>

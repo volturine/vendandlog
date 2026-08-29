@@ -20,6 +20,7 @@ __pycache__/
 
 # Local data
 *.db
+data/
 .vite/
 
 # Local env & editor config

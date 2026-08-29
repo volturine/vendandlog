@@ -1,0 +1,11 @@
+.git
+.mcp_data
+**/node_modules
+**/.svelte-kit
+**/build
+**/.venv
+**/__pycache__
+**/.ruff_cache
+*.db
+docs/mockups
+packages/frontend/static

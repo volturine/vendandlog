@@ -1,0 +1,43 @@
+# Local development database only (production stacks live in ~/Documents/workspace/deployments/vendandlog).
+#
+#   docker compose -f docker/compose.dev.yaml up -d --wait db
+#
+name: vendandlog-dev-tools
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    init: true
+    environment:
+      POSTGRES_USER: vendandlog
+      POSTGRES_PASSWORD: vdl_dev
+      POSTGRES_DB: vendandlog
+    ports:
+      - '127.0.0.1:5499:5432'
+    volumes:
+      - ./data/dev-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U vendandlog -d vendandlog']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    # Small-server tuning: ~100MB RAM. Every connection is a forked process
+    # (~5-10MB); workers are processes too. Never disable autovacuum.
+    command: >
+      postgres
+      -c listen_addresses=*
+      -c max_connections=25
+      -c shared_buffers=32MB
+      -c effective_cache_size=128MB
+      -c work_mem=2MB
+      -c maintenance_work_mem=16MB
+      -c max_worker_processes=2
+      -c max_parallel_workers=2
+      -c max_parallel_workers_per_gather=1
+      -c autovacuum_max_workers=1
+      -c autovacuum_vacuum_cost_delay=20ms
+      -c max_wal_size=512MB
+      -c min_wal_size=64MB
+      -c checkpoint_timeout=15min

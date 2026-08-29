@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 from app.db import engine
 from app.domain import GENESIS, event_hash
 from app.models import Condition, Conversation, Listing, ListingEvent, Message, Rating, User
+from app.passwords import hash_password
 
 
 def _ago(hours: float) -> str:
@@ -38,7 +39,10 @@ def ensure_seeded() -> None:
 
 
 def _users() -> list[User]:
-    """Fresh instances on every call — reused model objects would be no-ops in a new session."""
+    """Fresh instances on every call — reused model objects would be no-ops in a new session.
+
+    All demo users share the password 'demo' (documented on the login page)."""
+    password_hash = hash_password('demo')
     return [
         User(
             handle='jana.b',
@@ -46,25 +50,62 @@ def _users() -> list[User]:
             bio='Bikes, mostly. I meet at Radhaus so your mechanic can check everything.',
             avatar_color='#98e9d9',
             verified=True,
+            password_hash=password_hash,
             created_at=_ago(24 * 900),
         ),
-        User(handle='lea_rides', name='Lea Richter', bio='Selling what I ride.', avatar_color='#b3e2a1', verified=True, created_at=_ago(24 * 1200)),
-        User(handle='marat_77', name='Marat K.', bio='First listing here — be gentle.', avatar_color='#f6aea0', created_at=_ago(24 * 20)),
-        User(handle='gravelgus', name='Gustav Lange', bio='Gravel everywhere.', avatar_color='#a9d5f4', created_at=_ago(24 * 400)),
         User(
-            handle='cityhop', name='City Hop Bikes', bio='Small shop, second-hand commuters.', avatar_color='#f7d875', verified=True, created_at=_ago(24 * 800)
+            handle='lea_rides',
+            name='Lea Richter',
+            bio='Selling what I ride.',
+            avatar_color='#b3e2a1',
+            verified=True,
+            password_hash=password_hash,
+            created_at=_ago(24 * 1200),
         ),
-        User(handle='tomsfamily', name='Tom H.', bio='Family clearing the basement.', avatar_color='#f9c2d8', created_at=_ago(24 * 200)),
+        User(
+            handle='marat_77',
+            name='Marat K.',
+            bio='First listing here — be gentle.',
+            avatar_color='#f6aea0',
+            password_hash=password_hash,
+            created_at=_ago(24 * 20),
+        ),
+        User(handle='gravelgus', name='Gustav Lange', bio='Gravel everywhere.', avatar_color='#a9d5f4', password_hash=password_hash, created_at=_ago(24 * 400)),
+        User(
+            handle='cityhop',
+            name='City Hop Bikes',
+            bio='Small shop, second-hand commuters.',
+            avatar_color='#f7d875',
+            verified=True,
+            password_hash=password_hash,
+            created_at=_ago(24 * 800),
+        ),
+        User(
+            handle='tomsfamily',
+            name='Tom H.',
+            bio='Family clearing the basement.',
+            avatar_color='#f9c2d8',
+            password_hash=password_hash,
+            created_at=_ago(24 * 200),
+        ),
         User(
             handle='byte_berlin',
             name='Byte Berlin',
             bio='Refurbished laptops with battery receipts.',
             avatar_color='#c6b3f2',
             verified=True,
+            password_hash=password_hash,
             created_at=_ago(24 * 700),
         ),
-        User(handle='stringsnthings', name='Sofia M.', bio='Guitars loved and played.', avatar_color='#d6c5b0', created_at=_ago(24 * 350)),
-        User(handle='milan', name='Milan G.', bio='Mostly buying.', avatar_color='#98e9d9', created_at=_ago(24 * 500)),
+        User(
+            handle='stringsnthings',
+            name='Sofia M.',
+            bio='Guitars loved and played.',
+            avatar_color='#d6c5b0',
+            password_hash=password_hash,
+            created_at=_ago(24 * 350),
+        ),
+        User(handle='milan', name='Milan G.', bio='Mostly buying.', avatar_color='#98e9d9', password_hash=password_hash, created_at=_ago(24 * 500)),
     ]
 
 
@@ -238,10 +279,12 @@ def _seed(session: Session) -> None:
     session.flush()
 
     # Conversation on the sold listing: public because of the sale.
-    conv_cube = Conversation(listing_id=cube.id, buyer_handle='milan', is_public=False, created_at=_ago(24 * 10))
+    conv_cube = Conversation(listing_id=cube.id, buyer_handle='milan', is_public=False, created_at=_ago(24 * 10 + 2))
     session.add(conv_cube)
     session.flush()
-    session.add(Message(conversation_id=conv_cube.id, author_handle='milan', body='Hi! Any rust on the frame? Photos look clean.', created_at=_ago(24 * 10)))
+    session.add(
+        Message(conversation_id=conv_cube.id, author_handle='milan', body='Hi! Any rust on the frame? Photos look clean.', created_at=_ago(24 * 10 + 2))
+    )
     session.add(
         Message(
             conversation_id=conv_cube.id,
@@ -255,7 +298,7 @@ def _seed(session: Session) -> None:
             conversation_id=conv_cube.id,
             author_handle='milan',
             body='Deal at $275 if you include the swap. Meet at the U-Bahn station?',
-            created_at=_ago(24 * 9),
+            created_at=_ago(24 * 10),
         )
     )
 
@@ -268,9 +311,24 @@ def _seed(session: Session) -> None:
         Message(conversation_id=conv_canyon.id, author_handle='jana.b', body='$340 works if we meet at Radhaus — receipt is there too.', created_at=_ago(48))
     )
 
-    session.flush()
+    boxes = add(
+        Listing(
+            title='Moving boxes, packing paper — free if you pick up today',
+            description=(
+                'Just moved in, a dozen sturdy boxes and two rolls of packing paper left over. '
+                'Yours if you collect them this week.'
+            ),
+            price_cents=0,
+            condition=Condition.good,
+            category='books',
+            location='Wedding · 6 km',
+            seller_handle='tomsfamily',
+            created_at=_ago(6),
+        )
+    )
+    _event(session, boxes, 'listed', 'Listed — moving boxes, free', 'no photo yet', 6)
 
-    # Older sales so trust history feels lived-in: jana has two prior sales with ratings.
+    session.flush()
     brompton = add(
         Listing(
             title='Brompton M3L folding bike — commuter classic',

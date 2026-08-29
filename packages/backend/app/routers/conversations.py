@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.deps import acting_as
+from app.deps import acting_as, acting_handle
 from app.events import append_event
 from app.models import Conversation, Listing, Message, User
 from app.readers import conversation_is_public, conversation_public, user_public
@@ -33,7 +33,7 @@ def _conversation_or_403(session: Session, conversation_id: int, handle: str | N
 
 @router.post('/listings/{listing_id}/conversations')
 def start_conversation(listing_id: int, body: OpenConversation, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     listing = session.get(Listing, listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {listing_id}')
@@ -66,7 +66,7 @@ def listing_conversations(listing_id: int, request: Request, session: Session = 
     listing = session.get(Listing, listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {listing_id}')
-    handle = request.headers.get('X-Acting-As')
+    handle = acting_handle(request, session=session)
     rows = session.exec(select(Conversation).where(Conversation.listing_id == listing_id)).all()
     view = []
     for conversation in rows:
@@ -80,7 +80,7 @@ def listing_conversations(listing_id: int, request: Request, session: Session = 
 
 @router.get('/conversations/{conversation_id}')
 def get_conversation(conversation_id: int, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = request.headers.get('X-Acting-As')
+    handle = acting_handle(request, session=session)
     conversation, _listing = _conversation_or_403(session, conversation_id, handle)
     result = conversation_public(session, conversation)
     assert result is not None
@@ -101,7 +101,7 @@ def get_conversation(conversation_id: int, request: Request, session: Session = 
 
 @router.post('/conversations/{conversation_id}/messages')
 def send_message(conversation_id: int, body: SendMessage, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     conversation, listing = _conversation_or_403(session, conversation_id, handle)
     if handle not in {conversation.buyer_handle, listing.seller_handle}:
         raise HTTPException(403, 'Only the buyer or seller may write here')
@@ -123,7 +123,7 @@ def send_message(conversation_id: int, body: SendMessage, request: Request, sess
 @router.post('/conversations/{conversation_id}/unhide')
 def unhide_conversation(conversation_id: int, request: Request, session: Session = Depends(get_session)) -> dict:
     """Either party may prematurely make the conversation public. Logged on the listing record."""
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     conversation, listing = _conversation_or_403(session, conversation_id, handle)
     if handle not in {conversation.buyer_handle, listing.seller_handle}:
         raise HTTPException(403, 'Only a participant may unhide this conversation')

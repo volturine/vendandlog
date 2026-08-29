@@ -27,6 +27,14 @@
 				loading="lazy"
 				class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
 			/>
+		{:else}
+			<div class="grid h-full w-full place-items-center text-[var(--vdl-text-faint)]">
+				<svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+					<rect x="3" y="5" width="18" height="14" rx="2" />
+					<circle cx="8.5" cy="10" r="1.5" />
+					<path d="m21 15-4.5-4.5L9 18" />
+				</svg>
+			</div>
 		{/if}
 		{#if listing.status === 'sold'}
 			<span

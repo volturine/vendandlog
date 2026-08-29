@@ -7,15 +7,23 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
-from app.db import init_db
-from app.routers import conversations, listings, misc, users
+from app.routers import auth, conversations, listings, misc, users
 
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    init_db()
+    from app.config import get_settings
+
+    if get_settings().db_url.startswith('postgres'):
+        from app.db import run_migrations
+
+        run_migrations()
+    else:
+        from app.db import init_db
+
+        init_db()
     from app.seed import ensure_seeded
 
     ensure_seeded()
@@ -33,6 +41,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(misc.router)
+    app.include_router(auth.router)
     app.include_router(users.router)
     app.include_router(listings.router)
     app.include_router(conversations.router)

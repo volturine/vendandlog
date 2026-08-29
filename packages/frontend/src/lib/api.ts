@@ -10,19 +10,6 @@ import type {
 	UserPublic
 } from '$lib/types';
 
-const SESSION_KEY = 'vdl-acting-as';
-
-export function getActingAs(): string | null {
-	if (typeof localStorage === 'undefined') return null;
-	return localStorage.getItem(SESSION_KEY);
-}
-
-export function setActingAs(handle: string | null): void {
-	if (typeof localStorage === 'undefined') return;
-	if (handle) localStorage.setItem(SESSION_KEY, handle);
-	else localStorage.removeItem(SESSION_KEY);
-}
-
 export class ApiError extends Error {
 	constructor(
 		public status: number,
@@ -34,8 +21,6 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	const headers = new Headers(init?.headers);
-	const actingAs = getActingAs();
-	if (actingAs) headers.set('X-Acting-As', actingAs);
 	if (init?.body !== undefined) headers.set('Content-Type', 'application/json');
 	const res = await fetch(`/api${path}`, { ...init, headers });
 	if (!res.ok) {
@@ -57,6 +42,14 @@ export const api = {
 
 	me: () => request<UserPublic | null>('/me'),
 	users: () => request<UserPublic[]>('/users'),
+
+	register: (body: { handle: string; name: string; password: string }) =>
+		request<UserPublic>('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
+
+	login: (body: { handle: string; password: string }) =>
+		request<UserPublic>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+
+	logout: () => request<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
 
 	browse: (params: BrowseParams = {}) => {
 		const qs = new URLSearchParams();

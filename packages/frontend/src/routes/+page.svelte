@@ -56,9 +56,9 @@
 	<title>Vendandlog — the bazaar that remembers</title>
 </svelte:head>
 
-<div class="mx-auto max-w-7xl px-5 pb-16 pt-6">
+<div class="mx-auto max-w-7xl px-4 pb-16 pt-5 sm:px-5 sm:pt-6">
 	<!-- Atelier-style editorial hero, compact -->
-	<section class="mb-8 text-center">
+	<section class="mb-6 text-center sm:mb-8">
 		<h1 class="font-display mx-auto max-w-xl text-3xl font-medium tracking-tight sm:text-4xl">
 			Everything sold. <em class="text-[var(--vdl-accent)]">Nothing forgotten.</em>
 		</h1>
@@ -68,7 +68,7 @@
 	</section>
 
 	<!-- category chips -->
-	<div class="mb-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+	<div class="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:mb-5">
 		<button class="chip" class:on={data.category === 'all'} onclick={() => pickCategory('all')}>All</button>
 		{#each categoryEntries as [key, color] (key)}
 			<button class="chip" class:on={data.category === key} onclick={() => pickCategory(key)}>
@@ -78,7 +78,7 @@
 		{/each}
 	</div>
 
-	<div class="mb-4 flex flex-wrap items-center gap-3">
+	<div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
 		<h2 class="text-xl font-bold tracking-tight">
 			{data.category === 'all' ? 'Browse' : categoryLabel(data.category)}
 		</h2>
@@ -126,7 +126,7 @@
 	</div>
 
 	{#if view === 'grid'}
-		<div class="grid grid-cols-[repeat(auto-fill,minmax(248px,1fr))] gap-4">
+		<div class="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-3 sm:gap-4">
 			{#each data.listings as listing (listing.id)}
 				<ListingCard {listing} />
 			{/each}

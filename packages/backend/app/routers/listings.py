@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.deps import acting_as
+from app.deps import acting_as, acting_handle
 from app.events import append_event
 from app.models import Condition, Listing, ListingEvent, ListingStatus
 from app.readers import listing_public, user_public
@@ -63,7 +63,7 @@ def browse(
 
 @router.post('')
 def create_listing(body: CreateListing, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     if user_public(session, handle) is None:
         raise HTTPException(401, f'Unknown actor {handle}')
     price_cents = round(body.price * 100)
@@ -92,7 +92,7 @@ def get_listing(listing_id: int, request: Request, session: Session = Depends(ge
     listing = session.get(Listing, listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {listing_id}')
-    actor = request.headers.get('X-Acting-As')
+    actor = acting_handle(request, session=session)
     result = listing_public(session, listing)
     assert result is not None
     events = session.exec(select(ListingEvent).where(ListingEvent.listing_id == listing_id).order_by(ListingEvent.created_at.desc())).all()
@@ -108,7 +108,7 @@ def get_listing(listing_id: int, request: Request, session: Session = Depends(ge
         }
         for e in events
     ]
-    result['conversations'] = _conversations_view(session, listing)
+    result['conversations'] = _conversations_view(session, listing, actor)
     result['similar'] = _similar(session, listing)
     result['my_rating'] = _my_rating(session, listing, actor)
     return result
@@ -132,17 +132,20 @@ def _my_rating(session: Session, listing: Listing, actor: str | None) -> dict | 
     }
 
 
-def _conversations_view(session: Session, listing: Listing) -> list[dict]:
+def _conversations_view(session: Session, listing: Listing, actor: str | None) -> list[dict]:
     """Public conversations for everyone; the actor also sees their own."""
     from app.models import Conversation
-    from app.readers import conversation_public
+    from app.readers import conversation_is_public, conversation_public
 
-    rows = session.exec(select(Conversation).where(Conversation.listing_id == listing.id)).all()
     view: list[dict] = []
-    for conversation in rows:
-        serialized = conversation_public(session, conversation)
-        if serialized is not None:
-            view.append(serialized)
+    for conversation in session.exec(
+        select(Conversation).where(Conversation.listing_id == listing.id)
+    ).all():
+        participant = actor in {conversation.buyer_handle, listing.seller_handle}
+        if conversation_is_public(session, conversation, listing) or participant:
+            serialized = conversation_public(session, conversation)
+            if serialized is not None:
+                view.append(serialized)
     return view
 
 
@@ -158,7 +161,7 @@ def _similar(session: Session, listing: Listing) -> list[dict]:
 
 @router.patch('/{listing_id}')
 def update_listing(listing_id: int, body: UpdateListing, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     listing = session.get(Listing, listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {listing_id}')
@@ -204,7 +207,7 @@ def update_listing(listing_id: int, body: UpdateListing, request: Request, sessi
 
 @router.post('/{listing_id}/status')
 def change_status(listing_id: int, body: StatusChange, request: Request, session: Session = Depends(get_session)) -> dict:
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     listing = session.get(Listing, listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {listing_id}')

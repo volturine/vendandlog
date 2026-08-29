@@ -11,7 +11,10 @@ export const load: PageLoad = async ({ params, depends }) => {
 		const details: Record<number, ConversationDetail> = {};
 		await Promise.all(
 			listing.conversations.map(async (conversation) => {
-				details[conversation.id] = await api.conversation(conversation.id);
+				// The payload only carries conversations the viewer may read, but stay
+				// defensive: one forbidden detail must not break the whole page.
+				details[conversation.id] = await api.conversation(conversation.id).catch(() => null);
+				if (!details[conversation.id]) delete details[conversation.id];
 			})
 		);
 		return { listing, conversationDetails: details };

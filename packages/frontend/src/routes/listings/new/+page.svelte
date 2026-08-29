@@ -19,7 +19,7 @@
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
 		if (!session.me) {
-			error = 'Pick an identity in the header first';
+			error = 'Sign in first';
 			return;
 		}
 		busy = true;
@@ -47,7 +47,7 @@
 	<title>Post a listing — Vendandlog</title>
 </svelte:head>
 
-<main class="mx-auto max-w-xl px-5 pb-20 pt-8">
+<main class="mx-auto max-w-xl px-4 pb-20 pt-6 sm:px-5 sm:pt-8">
 	<h1 class="font-display text-3xl font-medium tracking-tight">Post a listing</h1>
 	<p class="mt-2 text-[0.9rem] leading-relaxed text-[var(--vdl-text-muted)]">
 		Once posted, your listing joins the public record — edits are logged, and it stays browsable
@@ -55,11 +55,12 @@
 	</p>
 
 	{#if !session.me}
-		<p
+		<div
 			class="mt-6 rounded-xl border border-dashed border-[var(--vdl-border)] bg-[var(--vdl-surface)] p-4 text-[0.85rem]"
 		>
-			Pick an identity in the header first (demo auth).
-		</p>
+			<a href="/login" class="font-semibold text-[var(--vdl-accent)] hover:underline">Sign in</a>
+			to post a listing — everything you post joins the public record.
+		</div>
 	{:else}
 		<form class="mt-6 space-y-4" onsubmit={submit}>
 			<label class="block">

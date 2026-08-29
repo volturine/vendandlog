@@ -95,8 +95,8 @@
 	<title>{listing.title} — Vendandlog</title>
 </svelte:head>
 
-<main class="mx-auto max-w-6xl px-5 pb-20">
-	<nav class="mb-5 flex items-center gap-2 text-[0.78rem] text-[var(--vdl-text-faint)]" aria-label="Breadcrumb">
+<main class="mx-auto max-w-6xl px-4 pb-20 sm:px-5">
+	<nav class="mb-5 flex flex-wrap items-center gap-2 text-[0.78rem] text-[var(--vdl-text-faint)]" aria-label="Breadcrumb">
 		<a href="/" class="hover:text-[var(--vdl-accent)]">Browse</a>
 		<span>›</span>
 		<span>{categoryLabel(listing.category)}</span>
@@ -104,8 +104,8 @@
 		<span class="text-[var(--vdl-text-muted)]">#{listing.id}</span>
 	</nav>
 
-	<div class="grid gap-7 lg:grid-cols-[7fr_5fr]">
-		<section>
+	<div class="grid gap-5 sm:gap-7 lg:grid-cols-[7fr_5fr]">
+		<section class="min-w-0">
 			<div class="vdl-card overflow-hidden !rounded-2xl">
 				{#if listing.image_url}
 					<img src={listing.image_url} alt={listing.title} class="aspect-[4/3] w-full object-cover" />
@@ -116,7 +116,7 @@
 				{/if}
 			</div>
 
-			<div class="mt-6 flex gap-1 border-b border-[var(--vdl-border-soft)]">
+			<div class="mt-6 flex gap-1 overflow-x-auto border-b border-[var(--vdl-border-soft)] [scrollbar-width:none]">
 				<button class="tab" class:on={tab === 'description'} onclick={() => (tab = 'description')}>Description</button>
 				<button class="tab" class:on={tab === 'conversation'} onclick={() => (tab = 'conversation')}>
 					Conversations <span class="count">{listing.conversations.length}</span>
@@ -221,7 +221,7 @@
 			{/if}
 		</section>
 
-		<aside class="space-y-4">
+		<aside class="min-w-0 space-y-4">
 			<div class="vdl-card p-5">
 				<div class="flex items-baseline gap-2">
 					<span class="text-[1.7rem] font-bold tracking-tight">{formatPrice(listing.price_cents)}</span>

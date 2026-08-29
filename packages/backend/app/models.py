@@ -25,9 +25,16 @@ class User(SQLModel, table=True):
     name: str
     bio: str = ''
     avatar_color: str = '#c6b3f2'
+    password_hash: str
     created_at: str = Field(default_factory=utcnow)
     verified: bool = False
     flags_upheld: int = 0
+
+
+class AuthSession(SQLModel, table=True):
+    token: str = Field(primary_key=True)
+    user_handle: str = Field(foreign_key='user.handle', index=True)
+    created_at: str = Field(default_factory=utcnow)
 
 
 class Listing(SQLModel, table=True):

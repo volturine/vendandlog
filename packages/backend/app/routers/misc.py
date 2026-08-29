@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.deps import acting_as
+from app.deps import acting_as, current_user
 from app.models import Conversation, Flag, Listing, Rating, User
 from app.readers import user_public
 
@@ -28,19 +28,18 @@ def health() -> dict:
 
 @router.get('/me')
 def me(request: Request, session: Session = Depends(get_session)) -> dict | None:
-    handle = request.headers.get('X-Acting-As')
-    if not handle:
-        return None
-    user = user_public(session, handle)
+    user = current_user(request, session)
     if user is None:
-        raise HTTPException(401, f'Unknown actor {handle}')
-    return user
+        return None
+    result = user_public(session, user.handle)
+    assert result is not None
+    return result
 
 
 @router.post('/ratings')
 def rate(body: RateBody, request: Request, session: Session = Depends(get_session)) -> dict:
     """Two-sided trust: after a sale, each side rates the other. Once."""
-    handle = acting_as(request)
+    handle = acting_as(request, session=session)
     listing = session.get(Listing, body.listing_id)
     if listing is None:
         raise HTTPException(404, f'No listing {body.listing_id}')
@@ -95,7 +94,7 @@ def _buyer_of(session: Session, listing_id: int) -> str | None:
 @router.post('/flags')
 def flag(body: FlagBody, request: Request, session: Session = Depends(get_session)) -> dict:
     """Highlight scammers. Skeleton: flags auto-upheld and visible on the profile."""
-    reporter = acting_as(request)
+    reporter = acting_as(request, session=session)
     if reporter == body.handle:
         raise HTTPException(409, 'You cannot flag yourself')
     if user_public(session, body.handle) is None:

@@ -1,10 +1,9 @@
 import { invalidate } from '$app/navigation';
-import { api, getActingAs, setActingAs } from '$lib/api';
+import { api } from '$lib/api';
 import type { UserPublic } from '$lib/types';
 
 function createSessionStore() {
-	let users = $state<UserPublic[]>([]);
-	let actingAs = $state<string | null>(null);
+	let me = $state<UserPublic | null>(null);
 	let loaded = $state(false);
 
 	let theme = $state<'light' | 'dark'>(
@@ -14,14 +13,8 @@ function createSessionStore() {
 	);
 
 	return {
-		get users() {
-			return users;
-		},
-		get actingAs() {
-			return actingAs;
-		},
-		get me(): UserPublic | null {
-			return users.find((u) => u.handle === actingAs) ?? null;
+		get me() {
+			return me;
 		},
 		get loaded() {
 			return loaded;
@@ -30,23 +23,24 @@ function createSessionStore() {
 			return theme;
 		},
 		async load() {
-			if (loaded) return;
-			actingAs = getActingAs();
 			try {
-				users = await api.users();
-				if (!actingAs || !users.some((u) => u.handle === actingAs)) {
-					actingAs = users[0]?.handle ?? null;
-					setActingAs(actingAs);
-				}
+				me = await api.me();
 			} finally {
 				loaded = true;
 			}
 		},
-		switchUser(handle: string) {
-			actingAs = handle;
-			setActingAs(handle);
-			// Loads that declared depends('vdl:session') refetch with the new identity.
-			void invalidate('vdl:session');
+		async login(handle: string, password: string) {
+			me = await api.login({ handle, password });
+			await invalidate('vdl:session');
+		},
+		async register(handle: string, name: string, password: string) {
+			me = await api.register({ handle, name, password });
+			await invalidate('vdl:session');
+		},
+		async logout() {
+			await api.logout();
+			me = null;
+			await invalidate('vdl:session');
 		},
 		toggleTheme() {
 			theme = theme === 'dark' ? 'light' : 'dark';
