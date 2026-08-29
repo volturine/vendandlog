@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vendandlog — concept 03 · karma terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0f0b;
+    --panel: #11150f;
+    --line: #243020;
+    --phos: #a6e22e;       /* phosphor green */
+    --phos-dim: #5c7a2f;
+    --amber: #ffb000;
+    --red: #ff5f56;
+    --text: #c9d4bd;
+    --muted: #6f7d64;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; line-height: 1.6;
+  }
+  /* subtle scanlines */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+  }
+  .crt { max-width: 1020px; margin: 0 auto; padding: 28px 24px 80px; }
+
+  /* ── top bar ── */
+  .top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px;
+    border-bottom: 1px solid var(--line); padding-bottom: 14px;
+  }
+  .logo {
+    font-family: 'VT323', monospace; font-size: 40px; color: var(--phos);
+    text-shadow: 0 0 12px rgba(166,226,46,.4);
+    letter-spacing: .02em;
+  }
+  .logo span { color: var(--text); }
+  .uptime { color: var(--muted); font-size: 12px; }
+  .who { font-size: 12px; color: var(--muted); }
+  .who b {
+    font-family: 'VT323', monospace; font-size: 26px; color: var(--amber); font-weight: 400;
+    vertical-align: -3px;
+  }
+
+  /* ── nav ── */
+  .nav {
+    display: flex; gap: 4px 22px; flex-wrap: wrap;
+    padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13px;
+  }
+  .nav a { color: var(--text); text-decoration: none; }
+  .nav a::before { content: "> "; color: var(--phos-dim); }
+  .nav a:hover { color: var(--phos); }
+  .nav .path { color: var(--muted); }
+  .nav .path b { color: var(--phos); font-weight: 500; }
+  .nav .grow { flex: 1; }
+
+  /* ── listing rows (dense, HN-like) ── */
+  .row {
+    display: grid; grid-template-columns: 44px 1fr auto; gap: 12px;
+    padding: 13px 8px; border-bottom: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .row:hover { background: var(--panel); }
+  .row .idx { color: var(--muted); text-align: right; }
+  .row h2 { font-size: 15px; font-weight: 500; color: var(--text); }
+  .row h2 a { color: inherit; text-decoration: none; }
+  .row h2 a:hover { color: var(--phos); text-decoration: underline; }
+  .row .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .row .meta b { color: var(--amber); font-weight: 500; }
+  .row .meta .pub { color: var(--phos); }
+  .row .meta .wish { color: var(--amber); }
+  .row .price { font-family: 'VT323', monospace; font-size: 24px; color: var(--text); }
+  .row .price .sold { color: var(--red); font-size: 15px; letter-spacing: .1em; }
+
+  /* ── expanded record ── */
+  .record {
+    margin-top: 36px; border: 1px solid var(--line); background: var(--panel);
+  }
+  .rec-head {
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  .rec-head h1 { font-family: 'VT323', monospace; font-weight: 400; font-size: 32px; color: var(--phos); }
+  .rec-head .deal { font-family: 'VT323', monospace; font-size: 26px; color: var(--amber); }
+  .rec-head .deal small { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); display: block; text-align: right; }
+  .rec-body { display: grid; grid-template-columns: 1fr 270px; }
+  .log { padding: 18px 20px; border-right: 1px solid var(--line); }
+  .log h3, .stats h3 { color: var(--muted); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 14px; }
+  .log h3 .pub { color: var(--phos); }
+  .line { margin-bottom: 12px; font-size: 13px; }
+  .line .who { color: var(--muted); }
+  .line .who b { color: var(--amber); font-weight: 500; }
+  .line p { padding-left: 16px; }
+  .line.ai .who { color: var(--red); }
+  .line.ai p { border-left: 2px solid var(--red); opacity: .95; }
+  .hand {
+    margin-top: 16px; padding: 10px 14px; border: 1px dashed var(--phos-dim);
+    color: var(--phos); font-size: 12px; letter-spacing: .08em;
+  }
+  .stats { padding: 18px 20px; font-size: 12.5px; }
+  .stats .r { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--line); }
+  .stats .r b { color: var(--text); font-weight: 500; }
+  .stats .r .amber { color: var(--amber); }
+  .karma-bar { margin-top: 14px; }
+  .karma-bar .track { height: 8px; background: var(--bg); border: 1px solid var(--line); margin-top: 6px; }
+  .karma-bar .fill { height: 100%; width: 82%; background: var(--phos); box-shadow: 0 0 8px rgba(166,226,46,.5); }
+  .flag { display: inline-block; margin-top: 16px; color: var(--red); cursor: pointer; font-size: 12px; }
+  .flag:hover { text-decoration: underline; }
+
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; display: flex; justify-content: space-between; }
+  .blink { animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="crt">
+
+  <div class="top">
+    <div>
+      <div class="logo">vendand<span>log</span></div>
+      <div class="uptime">the record never forgets · uptime: forever</div>
+    </div>
+    <div class="who">j.vrbas · karma <b>412</b> · <a href="#" style="color:var(--muted)">logout</a></div>
+  </div>
+
+  <nav class="nav">
+    <a href="#">new</a>
+    <a href="#">active</a>
+    <a href="#">sold</a>
+    <span class="path">home/furniture/<b>chairs</b></span>
+    <a href="#">wishlist</a>
+    <span class="grow"></span>
+    <a href="#">submit listing</a>
+  </nav>
+
+  <div class="row">
+    <span class="idx">1.</span>
+    <div>
+      <h2><a href="#">Oak dining table, seats six — solid, some wear</a></h2>
+      <div class="meta">240 € · by Mária K. <b>[891]</b> · home/furniture/tables · 12 conversations sealed</div>
+    </div>
+    <span class="price">240€</span>
+  </div>
+
+  <div class="row">
+    <span class="idx">2.</span>
+    <div>
+      <h2><a href="#">Vintage Marinoni road bike, 58 cm <span class="price"><span class="sold">[SOLD]</span></span></a></h2>
+      <div class="meta">sold 615 € · by Tomáš H. <b>[1204]</b> · bicycles/road · <span class="pub">7 conversations public</span></div>
+    </div>
+    <span class="price">615€</span>
+  </div>
+
+  <div class="row">
+    <span class="idx">3.</span>
+    <div>
+      <h2><a href="#">Revox B77 reel-to-reel, serviced, with tapes</a></h2>
+      <div class="meta">380 € · by Jan W. <b>[96]</b> · electronics/audio · <span class="wish">▲ matches your wishlist</span></div>
+    </div>
+    <span class="price">380€</span>
+  </div>
+
+  <div class="row">
+    <span class="idx">4.</span>
+    <div>
+      <h2><a href="#">Hand-thrown stoneware set, 12 pcs <span class="price"><span class="sold">[SOLD]</span></span></a></h2>
+      <div class="meta">95 € · by Petra V. <b>[633]</b> · home/ceramics · <span class="pub">4 conversations public</span></div>
+    </div>
+    <span class="price">95€</span>
+  </div>
+
+  <!-- expanded record -->
+  <section class="record">
+    <div class="rec-head">
+      <h1>&gt; cat /listing/00558</h1>
+      <div class="deal">615 €<small>asking 650 € · status: SOLD · record immutable</small></div>
+    </div>
+    <div class="rec-body">
+      <div class="log">
+        <h3>conversation.log — <span class="pub">UNSEALED</span></h3>
+        <div class="line">
+          <div class="who">[buyer j.vrbas <b>412</b>]</div>
+          <p>Is the groupset original? Any crashes in its life?</p>
+        </div>
+        <div class="line">
+          <div class="who">[seller Tomáš H. <b>1204</b>]</div>
+          <p>Full Campagnolo Chorus, original. Never crashed — raced '14–'16, then hung on a wall.</p>
+        </div>
+        <div class="line ai">
+          <div class="who">[ai-negotiator :: acting for j.vrbas]</div>
+          <p>frame wear + market record ⇒ fair price 615 €. seller, confirm? buyer can meet this week.</p>
+        </div>
+        <div class="line">
+          <div class="who">[seller Tomáš H. <b>1204</b>]</div>
+          <p>Deal. Thursday 18:00, old market hall?</p>
+        </div>
+        <div class="hand">$ handshake --confirmed · remainder executed offline</div>
+      </div>
+      <aside class="stats">
+        <h3>record</h3>
+        <div class="r"><span>seller</span><b>Tomáš H. <span class="amber">[1204]</span></b></div>
+        <div class="r"><span>buyer</span><b>j.vrbas <span class="amber">[412]</span></b></div>
+        <div class="r"><span>listed</span><b>2026-08-03</b></div>
+        <div class="r"><span>sold</span><b>2026-08-21</b></div>
+        <div class="r"><span>convos</span><b>7 · public</b></div>
+        <div class="r"><span>rating</span><b style="color:var(--phos)">+ / +</b></div>
+        <div class="karma-bar">
+          seller karma integrity
+          <div class="track"><div class="fill"></div></div>
+        </div>
+        <span class="flag">[!] flag bad actor</span>
+      </aside>
+    </div>
+  </section>
+
+  <footer>
+    <span>vendandlog :: transparency as protocol</span>
+    <span>api: open · payments: none · deletions: never<span class="blink">▌</span></span>
+  </footer>
+
+</div>
+</body>
+</html>

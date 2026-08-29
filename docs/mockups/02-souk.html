@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vendandlog — concept 02 · souk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #efe3cd;
+    --sand-deep: #e6d5b8;
+    --terra: #bc5433;
+    --terra-dark: #9c4023;
+    --olive: #37473a;
+    --ink: #2b2620;
+    --gold: #c8963e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--sand);
+    color: var(--ink);
+    font-family: 'Alegreya Sans', sans-serif;
+    font-size: 16px; line-height: 1.5;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px 90px; }
+
+  /* ── header ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 0 20px; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand .mark {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--terra); color: var(--sand);
+    display: grid; place-items: center;
+    font-family: 'Marcellus', serif; font-size: 24px;
+    box-shadow: inset 0 0 0 3px var(--sand), inset 0 0 0 5px var(--terra);
+  }
+  .brand h1 { font-family: 'Marcellus', serif; font-weight: 400; font-size: 30px; letter-spacing: .01em; }
+  .brand small { display: block; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--terra-dark); }
+  .me { text-align: right; font-size: 14px; }
+  .me .karma {
+    font-family: 'Marcellus', serif; font-size: 24px; color: var(--olive);
+  }
+  .me .karma::after { content: " ✦"; color: var(--gold); }
+
+  /* ── canopy nav ── */
+  nav.canopy {
+    background: var(--olive); color: var(--sand);
+    border-radius: 12px 12px 0 0;
+    padding: 12px 20px;
+    display: flex; gap: 22px; align-items: center; flex-wrap: wrap;
+    font-size: 14px; letter-spacing: .04em;
+  }
+  nav.canopy a { color: var(--sand); text-decoration: none; border-bottom: 1px dotted transparent; }
+  nav.canopy a:hover { border-bottom-color: var(--gold); }
+  nav.canopy .crumb { color: var(--sand-deep); }
+  nav.canopy .crumb b { color: #fff; font-weight: 500; }
+  nav.canopy .grow { flex: 1; }
+  nav.canopy .new {
+    background: var(--terra); padding: 6px 16px; border-radius: 999px;
+    font-weight: 500; letter-spacing: .06em;
+  }
+
+  .floor {
+    background: var(--sand-deep);
+    border-radius: 0 0 12px 12px;
+    padding: 26px 22px 30px;
+  }
+
+  /* ── stalls ── */
+  .stalls { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .stall {
+    background: #fbf6ea;
+    border-radius: 120px 120px 14px 14px; /* the arch of a market stall */
+    border: 1px solid #d8c9a8;
+    padding: 30px 18px 18px;
+    text-align: center;
+    position: relative;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .stall:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -14px rgba(43,38,32,.45); }
+  .stall .awning {
+    position: absolute; inset: 0 0 auto 0; height: 10px;
+    border-radius: 120px 120px 0 0;
+    background: repeating-linear-gradient(90deg, var(--terra) 0 18px, #fbf6ea 18px 36px);
+    opacity: .9;
+  }
+  .stall h2 { font-family: 'Marcellus', serif; font-weight: 400; font-size: 20px; margin: 12px 0 4px; }
+  .stall .cat { font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--terra-dark); }
+  .stall .price { font-family: 'Marcellus', serif; font-size: 24px; color: var(--olive); margin: 10px 0 2px; }
+  .stall .seller { font-size: 13.5px; color: #6d6250; }
+  .stall .seller b { color: var(--olive); }
+  .stall .seller b::after { content: " ✦"; color: var(--gold); font-size: 11px; }
+  .tag {
+    display: inline-block; margin-top: 10px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 3px 12px; border-radius: 999px;
+  }
+  .tag.open { background: rgba(55,71,58,.12); color: var(--olive); }
+  .tag.sold { background: var(--terra); color: #fbf6ea; }
+  .tag.public { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
+  .tag.wish { background: var(--gold); color: #3a2c12; }
+  .stall.sold-stall { opacity: .92; }
+
+  /* ── the sold rug: expanded ── */
+  .tent {
+    margin-top: 40px;
+    background: #fbf6ea;
+    border: 1px solid #d8c9a8;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .tent-head {
+    background: var(--terra); color: #fbf6ea;
+    padding: 20px 28px;
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .tent-head h2 { font-family: 'Marcellus', serif; font-weight: 400; font-size: 27px; }
+  .tent-head small { display: block; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; opacity: .85; }
+  .tent-head .deal { text-align: right; }
+  .tent-head .deal b { font-family: 'Marcellus', serif; font-size: 26px; font-weight: 400; }
+  .tent-body { display: grid; grid-template-columns: 1fr 290px; }
+  .convo { padding: 24px 28px; }
+  .convo h3, .side h3 {
+    font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dark);
+    margin-bottom: 16px;
+  }
+  .msg { max-width: 88%; margin-bottom: 14px; }
+  .msg .who { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #857a63; margin-bottom: 2px; }
+  .msg .who b { color: var(--olive); }
+  .msg .who b::after { content: " ✦"; color: var(--gold); font-size: 10px; }
+  .msg p {
+    background: var(--sand); border-radius: 3px 14px 14px 14px; padding: 10px 14px;
+    display: inline-block;
+  }
+  .msg.seller { margin-left: auto; text-align: right; }
+  .msg.seller p { border-radius: 14px 3px 14px 14px; background: #efe0c8; }
+  .msg.ai p { background: #f3e3d3; border: 1px dashed var(--terra); }
+  .msg.ai .who { color: var(--terra-dark); }
+  .hand {
+    margin-top: 18px; text-align: center; font-family: 'Marcellus', serif;
+    color: var(--olive); font-size: 18px;
+  }
+  .hand::before, .hand::after { content: "— "; color: var(--gold); }
+  .hand::after { content: " —"; }
+  .side {
+    background: var(--sand); border-left: 1px solid #d8c9a8;
+    padding: 24px 22px; font-size: 14px;
+  }
+  .side .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #cbbc9c; }
+  .side .row b { color: var(--olive); }
+  .side .note { margin-top: 16px; font-style: italic; color: #6d6250; }
+  .side .flag { color: var(--terra-dark); font-weight: 700; cursor: pointer; }
+
+  footer { margin-top: 46px; text-align: center; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--terra-dark); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="mark">v</div>
+      <div>
+        <h1>vendandlog</h1>
+        <small>the open bazaar</small>
+      </div>
+    </div>
+    <div class="me">
+      <span class="karma">412</span><br>
+      j. vrbas — your standing in the square
+    </div>
+  </header>
+
+  <nav class="canopy">
+    <a href="#">Square</a>
+    <span class="crumb">Home ▸ Furniture ▸ <b>Chairs</b></span>
+    <a href="#">Electronics</a>
+    <a href="#">Bicycles</a>
+    <span class="grow"></span>
+    <a href="#">Search the stalls…</a>
+    <a href="#" class="new">+ Open a stall</a>
+  </nav>
+
+  <div class="floor">
+    <div class="stalls">
+
+      <div class="stall">
+        <div class="awning"></div>
+        <div class="cat">Home ▸ Furniture ▸ Tables</div>
+        <h2>Oak dining table, seats six</h2>
+        <div class="price">240 €</div>
+        <div class="seller">Mária K. · <b>891</b></div>
+        <span class="tag open">Taking offers</span>
+      </div>
+
+      <div class="stall sold-stall">
+        <div class="awning"></div>
+        <div class="cat">Bicycles ▸ Road</div>
+        <h2>Vintage Marinoni, 58 cm</h2>
+        <div class="price"><s>650 €</s> → 615 €</div>
+        <div class="seller">Tomáš H. · <b>1204</b></div>
+        <span class="tag sold">Sold</span>
+        <span class="tag public">Talks public</span>
+      </div>
+
+      <div class="stall">
+        <div class="awning"></div>
+        <div class="cat">Electronics ▸ Audio</div>
+        <h2>Revox B77 reel-to-reel</h2>
+        <div class="price">380 €</div>
+        <div class="seller">Jan W. · <b>96</b></div>
+        <span class="tag wish">✦ From your wishlist</span>
+      </div>
+
+      <div class="stall sold-stall">
+        <div class="awning"></div>
+        <div class="cat">Home ▸ Ceramics</div>
+        <h2>Stoneware set, 12 pcs</h2>
+        <div class="price">95 €</div>
+        <div class="seller">Petra V. · <b>633</b></div>
+        <span class="tag sold">Sold</span>
+        <span class="tag public">Talks public</span>
+      </div>
+
+    </div>
+
+    <!-- ── expanded sold listing ── -->
+    <section class="tent">
+      <div class="tent-head">
+        <div>
+          <small>Sold · the talks are now open to all</small>
+          <h2>Vintage Marinoni road bike, 58 cm</h2>
+        </div>
+        <div class="deal">agreed at<br><b>615 €</b></div>
+      </div>
+      <div class="tent-body">
+        <div class="convo">
+          <h3>The bargaining — public record</h3>
+          <div class="msg">
+            <div class="who">buyer · j. vrbas <b>412</b></div>
+            <p>Is the groupset original? Any crashes in its life?</p>
+          </div>
+          <div class="msg seller">
+            <div class="who">seller · Tomáš H. <b>1204</b></div>
+            <p>Full Campagnolo Chorus, original. Never crashed — raced '14–'16, then hung on a wall.</p>
+          </div>
+          <div class="msg ai">
+            <div class="who">AI negotiator · for the buyer</div>
+            <p>Frame wear and market record suggest 615 € is fair to both. Shall we settle there?</p>
+          </div>
+          <div class="msg seller">
+            <div class="who">seller · Tomáš H. <b>1204</b></div>
+            <p>Deal. Thursday, 18:00, by the old market hall?</p>
+          </div>
+          <div class="hand">shaken on it — the rest happened face to face</div>
+        </div>
+        <aside class="side">
+          <h3>Standing</h3>
+          <div class="row"><span>Seller</span><b>Tomáš H. ✦ 1204</b></div>
+          <div class="row"><span>Buyer</span><b>j. vrbas ✦ 412</b></div>
+          <div class="row"><span>Listed</span><b>03 Aug</b></div>
+          <div class="row"><span>Sold</span><b>21 Aug</b></div>
+          <div class="row"><span>Talks</span><b>7 · public</b></div>
+          <div class="row"><span>Both rated</span><b>+ trustworthy</b></div>
+          <p class="note">This stall never closes and never leaves the square.<br><br>
+          Witnessed something dishonest? <span class="flag">Raise a flag</span>.</p>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <footer>no coins pass through the square — only words and handshakes</footer>
+
+</div>
+</body>
+</html>

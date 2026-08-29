@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vendandlog — concept 05 · bureau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&family=Libre+Franklin:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f3;
+    --ink: #141412;
+    --mute: #71716b;
+    --line: #141412;
+    --thin: #d6d6d0;
+    --signal: #2b3ff0;   /* civic signal blue */
+    --warn: #e1430b;
+    --ok: #0d6e3f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  .page { max-width: 1160px; margin: 0 auto; padding: 0 32px 90px; }
+
+  /* ── top ── */
+  .topbar {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: end;
+    padding: 34px 0 18px; border-bottom: 4px solid var(--line);
+  }
+  .topbar .left { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--mute); font-weight: 600; }
+  .logo {
+    font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 44px;
+    letter-spacing: -.045em; text-transform: uppercase; line-height: .9; text-align: center;
+  }
+  .logo em { font-style: normal; color: var(--signal); }
+  .account { justify-self: end; text-align: right; font-size: 12.5px; color: var(--mute); }
+  .account .karma {
+    font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 30px; color: var(--ink);
+    font-feature-settings: 'tnum'; line-height: 1;
+  }
+  .account .karma::before { content: "T·"; color: var(--signal); }
+
+  /* ── nav row ── */
+  .navrow {
+    display: flex; align-items: center; gap: 0; border-bottom: 1px solid var(--line);
+    font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+  }
+  .navrow a {
+    color: var(--ink); text-decoration: none; padding: 14px 20px 12px;
+    border-right: 1px solid var(--thin);
+  }
+  .navrow a:first-child { padding-left: 0; }
+  .navrow a:hover { color: var(--signal); }
+  .navrow .crumb { color: var(--mute); font-weight: 500; padding: 14px 20px 12px; border-right: 1px solid var(--thin); }
+  .navrow .crumb b { color: var(--signal); font-weight: 700; }
+  .navrow .grow { flex: 1; border: 0; }
+  .navrow .cta { background: var(--ink); color: var(--bg); padding: 14px 22px 12px; border-right: 0; }
+  .navrow .cta:hover { background: var(--signal); color: #fff; }
+
+  /* ── section marker ── */
+  .sect {
+    display: flex; align-items: baseline; gap: 14px; margin: 42px 0 0;
+    border-bottom: 1px solid var(--line); padding-bottom: 8px;
+  }
+  .sect .num { font-family: 'Archivo', sans-serif; font-weight: 900; color: var(--signal); font-size: 15px; }
+  .sect h2 { font-family: 'Archivo', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; font-size: 17px; }
+  .sect .count { margin-left: auto; font-size: 12px; color: var(--mute); }
+
+  /* ── listing grid rows ── */
+  .lst { border-bottom: 1px solid var(--thin); }
+  .lst .row {
+    display: grid; grid-template-columns: 70px 1fr 130px 130px 170px; gap: 20px;
+    padding: 20px 0; align-items: baseline; cursor: pointer;
+  }
+  .lst .row:hover h3 { color: var(--signal); }
+  .id { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 12px; color: var(--mute); }
+  h3 { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -.015em; line-height: 1.15; }
+  .sub { font-size: 12.5px; color: var(--mute); margin-top: 4px; }
+  .sub .pub { color: var(--ok); font-weight: 600; }
+  .sub .wish { color: var(--warn); font-weight: 600; }
+  .price { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 22px; text-align: right; font-feature-settings: 'tnum'; }
+  .price s { color: var(--mute); font-weight: 400; font-size: 14px; display: block; }
+  .state { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; text-align: center; padding: 5px 0; border: 1.5px solid var(--ink); }
+  .state.sold { background: var(--ink); color: var(--bg); }
+  .party { text-align: right; font-size: 12.5px; color: var(--mute); }
+  .party b { font-family: 'Archivo', sans-serif; font-weight: 900; color: var(--ink); font-size: 15px; font-feature-settings: 'tnum'; }
+  .party b::before { content: "T·"; color: var(--signal); font-size: 11px; }
+
+  /* ── expanded dossier ── */
+  .dossier { margin-top: 46px; border: 2px solid var(--line); background: #fff; }
+  .dos-head {
+    display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+    padding: 24px 30px; border-bottom: 2px solid var(--line);
+    background: linear-gradient(0deg, var(--bg), var(--bg)), #fff;
+  }
+  .dos-head .k { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--signal); }
+  .dos-head h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 34px; letter-spacing: -.03em; line-height: 1; margin-top: 6px; }
+  .dos-head .deal { text-align: right; }
+  .dos-head .deal .v { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 38px; font-feature-settings: 'tnum'; line-height: 1; }
+  .dos-head .deal .l { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--mute); }
+  .dos-body { display: grid; grid-template-columns: 1fr 300px; }
+  .convo { padding: 26px 30px; border-right: 1px solid var(--thin); }
+  .convo h4, .facts h4 {
+    font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: .12em;
+    margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+  }
+  .convo h4 .pill { background: var(--ok); color: #fff; padding: 2px 10px; border-radius: 999px; font-size: 10px; letter-spacing: .1em; }
+  .msg { display: grid; grid-template-columns: 132px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--thin); font-size: 14px; }
+  .msg:last-of-type { border-bottom: 0; }
+  .msg .who { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); font-weight: 600; }
+  .msg .who b { display: block; color: var(--ink); font-size: 12.5px; }
+  .msg .who b::after { content: " · T" attr(data-k); color: var(--signal); }
+  .msg.ai { background: #f4f5ff; margin: 0 -14px; padding: 12px 14px; border-bottom: 1px solid #dfe2ff; }
+  .msg.ai .who b { color: var(--signal); }
+  .settled {
+    margin-top: 20px; background: var(--ink); color: var(--bg);
+    font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 12px 18px; display: flex; justify-content: space-between;
+  }
+  .settled span:last-child { color: #8f95ff; }
+  .facts { padding: 26px 28px; }
+  .facts .r { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--thin); font-size: 13px; }
+  .facts .r b { font-weight: 600; font-feature-settings: 'tnum'; }
+  .facts .r .ok { color: var(--ok); font-weight: 700; }
+  .perm {
+    margin-top: 18px; border: 1.5px solid var(--ink); padding: 12px 14px;
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; line-height: 1.7;
+  }
+  .perm b { color: var(--signal); }
+  .flag { margin-top: 14px; display: inline-block; color: var(--warn); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; border-bottom: 2px solid var(--warn); }
+
+  footer { margin-top: 54px; border-top: 4px solid var(--line); padding-top: 14px; display: flex; justify-content: space-between; font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--mute); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div class="left">Public exchange register<br>No. 2026 / 08</div>
+    <div class="logo">vendand<em>log</em></div>
+    <div class="account">
+      <span class="karma">412</span><br>
+      j. vrbas · standing: good
+    </div>
+  </div>
+
+  <nav class="navrow">
+    <a href="#">Register</a>
+    <span class="crumb">Home ▸ Furniture ▸ <b>Chairs</b></span>
+    <a href="#">Electronics</a>
+    <a href="#">Bicycles</a>
+    <a href="#">Wishlist</a>
+    <span class="grow"></span>
+    <a class="cta" href="#">File a listing →</a>
+  </nav>
+
+  <div class="sect">
+    <span class="num">01</span>
+    <h2>Current register</h2>
+    <span class="count">4 entries shown · 2 settled · nothing removed, ever</span>
+  </div>
+
+  <div class="lst">
+
+    <div class="row">
+      <span class="id">#00571</span>
+      <div>
+        <h3>Oak dining table, seats six</h3>
+        <div class="sub">Home ▸ Furniture ▸ Tables · filed 12 Aug · 12 conversations sealed</div>
+      </div>
+      <span class="price">240 €</span>
+      <span class="state">Open</span>
+      <div class="party">Mária K.<br><b>891</b></div>
+    </div>
+
+    <div class="row">
+      <span class="id">#00558</span>
+      <div>
+        <h3>Vintage Marinoni road bike, 58 cm</h3>
+        <div class="sub">Bicycles ▸ Road · settled 21 Aug · <span class="pub">7 conversations on public record</span></div>
+      </div>
+      <span class="price">615 €<s>650 €</s></span>
+      <span class="state sold">Settled</span>
+      <div class="party">Tomáš H.<br><b>1204</b></div>
+    </div>
+
+    <div class="row">
+      <span class="id">#00577</span>
+      <div>
+        <h3>Revox B77 reel-to-reel, serviced</h3>
+        <div class="sub">Electronics ▸ Audio ▸ Reel-to-reel · filed today · <span class="wish">matches wishlist entry W-07</span></div>
+      </div>
+      <span class="price">380 €</span>
+      <span class="state">Open</span>
+      <div class="party">Jan W.<br><b>96</b></div>
+    </div>
+
+    <div class="row">
+      <span class="id">#00549</span>
+      <div>
+        <h3>Hand-thrown stoneware set, 12 pcs</h3>
+        <div class="sub">Home ▸ Ceramics · settled 19 Aug · <span class="pub">4 conversations on public record</span></div>
+      </div>
+      <span class="price">95 €</span>
+      <span class="state sold">Settled</span>
+      <div class="party">Petra V.<br><b>633</b></div>
+    </div>
+
+  </div>
+
+  <div class="sect">
+    <span class="num">02</span>
+    <h2>Dossier #00558 — full public record</h2>
+    <span class="count">sealed 03 Aug → unsealed 21 Aug</span>
+  </div>
+
+  <section class="dossier">
+    <div class="dos-head">
+      <div>
+        <div class="k">Settled exchange · Bicycles ▸ Road</div>
+        <h1>Vintage Marinoni road bike, 58 cm</h1>
+      </div>
+      <div class="deal">
+        <div class="v">615 €</div>
+        <div class="l">agreed · met in person</div>
+      </div>
+    </div>
+    <div class="dos-body">
+      <div class="convo">
+        <h4>Transcript <span class="pill">public</span></h4>
+        <div class="msg">
+          <div class="who">Buyer<b data-k="412">j. vrbas</b></div>
+          <p>Is the groupset original? Any crashes in its life?</p>
+        </div>
+        <div class="msg">
+          <div class="who">Seller<b data-k="1204">Tomáš H.</b></div>
+          <p>Full Campagnolo Chorus, original. Never crashed — raced '14–'16, then hung on a wall.</p>
+        </div>
+        <div class="msg ai">
+          <div class="who">Automated<b>AI negotiator</b></div>
+          <p>Acting for the buyer: frame wear and register history support 615 € as fair to both parties. Buyer can meet this week. Do you accept?</p>
+        </div>
+        <div class="msg">
+          <div class="who">Seller<b data-k="1204">Tomáš H.</b></div>
+          <p>Deal. Thursday, 18:00, by the old market hall?</p>
+        </div>
+        <div class="settled"><span>Handshake confirmed</span><span>remainder conducted offline</span></div>
+      </div>
+      <aside class="facts">
+        <h4>Facts of record</h4>
+        <div class="r"><span>Seller</span><b>Tomáš H. · T1204</b></div>
+        <div class="r"><span>Buyer</span><b>j. vrbas · T412</b></div>
+        <div class="r"><span>Filed</span><b>03 Aug 2026</b></div>
+        <div class="r"><span>Settled</span><b>21 Aug 2026</b></div>
+        <div class="r"><span>Transcripts</span><b>7 · all public</b></div>
+        <div class="r"><span>Mutual rating</span><b class="ok">positive / positive</b></div>
+        <div class="perm">This dossier is <b>permanent</b>. Entries are never removed from the register under normal circumstances.</div>
+        <span class="flag">Report misconduct →</span>
+      </aside>
+    </div>
+  </section>
+
+  <footer>
+    <span>vendandlog · register of exchange</span>
+    <span>open api · no payments · permanent record</span>
+  </footer>
+
+</div>
+</body>
+</html>

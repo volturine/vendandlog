@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vendandlog — concept 04 · noticeboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Karla:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board: #c9a06c;
+    --board-dark: #b0895a;
+    --paper: #fefdf7;
+    --paper-aged: #f9f4e3;
+    --ink: #33302a;
+    --red: #d0523d;
+    --green: #4d7a54;
+    --tape: rgba(240, 224, 140, .75);
+    --tape-blue: rgba(158, 197, 214, .8);
+    --tape-pink: rgba(233, 176, 186, .8);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Karla', sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.14), transparent 50%),
+      repeating-linear-gradient(45deg, rgba(0,0,0,.03) 0 3px, transparent 3px 9px),
+      var(--board);
+    min-height: 100vh;
+  }
+  .board { max-width: 1180px; margin: 0 auto; padding: 34px 28px 100px; }
+
+  /* ── header strip pinned to board ── */
+  header {
+    background: var(--paper);
+    border-radius: 4px;
+    box-shadow: 0 6px 18px rgba(60,40,15,.35);
+    padding: 18px 26px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    position: relative;
+    transform: rotate(-.4deg);
+  }
+  header::before, header::after {
+    content: ""; position: absolute; top: -12px; width: 90px; height: 26px;
+    background: var(--tape); transform: rotate(-3deg);
+    box-shadow: 0 1px 3px rgba(60,40,15,.25);
+  }
+  header::before { left: 40px; }
+  header::after { right: 60px; transform: rotate(4deg); background: var(--tape-blue); }
+  .logo { font-family: 'Caveat', cursive; font-size: 44px; font-weight: 700; line-height: 1; }
+  .logo span { color: var(--red); }
+  .tagline { font-size: 13px; color: #7a7263; letter-spacing: .02em; }
+  .you { text-align: right; font-size: 14px; }
+  .you .star { color: #b8912e; font-weight: 800; }
+  .you .hand { font-family: 'Caveat', cursive; font-size: 20px; color: var(--green); }
+
+  /* ── category ribbon ── */
+  nav {
+    margin: 22px 4px 30px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  nav a {
+    background: var(--paper); text-decoration: none; color: var(--ink);
+    padding: 7px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 700;
+    box-shadow: 0 3px 8px rgba(60,40,15,.3);
+  }
+  nav a:hover { transform: translateY(-2px) rotate(-1deg); }
+  nav a.crumb { background: var(--ink); color: var(--paper-aged); font-weight: 500; }
+  nav a.crumb b { color: #ffd98a; }
+  nav .grow { flex: 1; }
+  nav a.pin-new { background: var(--red); color: #fff; }
+
+  /* ── pinned notes ── */
+  .notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 26px; }
+  .note {
+    background: var(--paper);
+    padding: 20px 18px 16px;
+    border-radius: 3px;
+    box-shadow: 0 8px 16px rgba(60,40,15,.35);
+    position: relative;
+    transition: transform .18s ease;
+  }
+  .note:nth-child(1) { transform: rotate(-1.6deg); }
+  .note:nth-child(2) { transform: rotate(1.1deg); }
+  .note:nth-child(3) { transform: rotate(-.7deg); }
+  .note:nth-child(4) { transform: rotate(1.8deg); }
+  .note:hover { transform: rotate(0) scale(1.03); z-index: 2; }
+  .note .tape {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 84px; height: 24px; background: var(--tape);
+    box-shadow: 0 1px 2px rgba(60,40,15,.25);
+  }
+  .note:nth-child(2) .tape { background: var(--tape-pink); transform: translateX(-50%) rotate(3deg); }
+  .note:nth-child(3) .tape { background: var(--tape-blue); }
+  .note .cat { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #978d76; font-weight: 700; }
+  .note h2 { font-family: 'Caveat', cursive; font-size: 28px; font-weight: 700; line-height: 1.1; margin: 6px 0 4px; }
+  .note .price { font-size: 19px; font-weight: 800; }
+  .note .who { font-size: 13px; color: #6d665a; margin-top: 6px; }
+  .note .who .star { color: #b8912e; font-weight: 800; }
+  .note .chips { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; }
+  .chip.open { background: #e2ecda; color: var(--green); }
+  .chip.wish { background: #f6ecd2; color: #8a6d1f; }
+  .chip.public { background: #dde9ee; color: #33606f; }
+  .note.sold { background: var(--paper-aged); }
+  .note.sold::after {
+    content: "SOLD"; position: absolute; right: 10px; top: 34px;
+    font-family: 'Caveat', cursive; font-size: 34px; font-weight: 700; color: var(--red);
+    border: 3px solid var(--red); border-radius: 8px; padding: 0 12px;
+    transform: rotate(9deg); opacity: .8;
+  }
+  .note .wish-note { font-family: 'Caveat', cursive; font-size: 19px; color: #8a6d1f; margin-top: 8px; }
+
+  /* ── the pinned letter (expanded sold listing) ── */
+  .letter {
+    margin: 48px auto 0; max-width: 920px;
+    background: var(--paper);
+    border-radius: 3px;
+    box-shadow: 0 14px 34px rgba(60,40,15,.45);
+    transform: rotate(.5deg);
+    position: relative;
+  }
+  .letter .tape {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+    width: 130px; height: 28px; background: var(--tape);
+    box-shadow: 0 2px 4px rgba(60,40,15,.3);
+  }
+  .letter-head {
+    padding: 28px 34px 18px;
+    border-bottom: 2px dashed #d8d0ba;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  .letter-head h2 { font-family: 'Caveat', cursive; font-size: 38px; line-height: 1; }
+  .letter-head .deal { font-size: 14px; color: #6d665a; text-align: right; }
+  .letter-head .deal b { font-size: 24px; color: var(--ink); }
+  .letter-body { display: grid; grid-template-columns: 1fr 260px; }
+  .convo { padding: 24px 34px; border-right: 2px dashed #d8d0ba; }
+  .convo h3, .margin h3 {
+    font-family: 'Caveat', cursive; font-size: 24px; color: var(--green); margin-bottom: 12px;
+  }
+  .msg { margin-bottom: 14px; max-width: 92%; }
+  .msg .who { font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #9a917c; }
+  .msg .who .star { color: #b8912e; }
+  .msg p { font-family: 'Caveat', cursive; font-size: 22px; line-height: 1.25; }
+  .msg.ai p { color: var(--red); }
+  .msg.ai .who { color: var(--red); }
+  .shook {
+    margin-top: 18px; text-align: center;
+    font-family: 'Caveat', cursive; font-size: 26px; color: var(--green);
+  }
+  .margin { padding: 24px 26px; font-size: 13.5px; }
+  .margin .row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dotted #cfc7ae; }
+  .margin .row b { font-weight: 800; }
+  .margin .row .star { color: #b8912e; }
+  .margin .scribble { font-family: 'Caveat', cursive; font-size: 20px; color: #6d665a; margin-top: 14px; line-height: 1.3; }
+  .margin .flag { color: var(--red); font-weight: 800; cursor: pointer; }
+
+  footer { margin-top: 54px; text-align: center; color: rgba(255,255,255,.85); font-size: 13px; letter-spacing: .06em; text-shadow: 0 1px 2px rgba(60,40,15,.4); }
+</style>
+</head>
+<body>
+<div class="board">
+
+  <header>
+    <div>
+      <div class="logo">vendand<span>log</span></div>
+      <div class="tagline">the community board where nothing gets taken down</div>
+    </div>
+    <div class="you">
+      hi, <b>j. vrbas</b> — your word is worth <span class="star">★ 412</span><br>
+      <span class="hand">keep it spotless!</span>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#">Everything</a>
+    <a class="crumb" href="#">home ▸ furniture ▸ <b>chairs</b></a>
+    <a href="#">electronics</a>
+    <a href="#">bicycles</a>
+    <a href="#">your wishlist</a>
+    <span class="grow"></span>
+    <a class="pin-new" href="#">📌 pin a listing</a>
+  </nav>
+
+  <div class="notes">
+
+    <div class="note">
+      <div class="tape"></div>
+      <div class="cat">home ▸ furniture ▸ tables</div>
+      <h2>Oak dining table, seats six</h2>
+      <div class="price">240 €</div>
+      <div class="who">Mária K. <span class="star">★ 891</span></div>
+      <div class="chips"><span class="chip open">open to offers</span></div>
+    </div>
+
+    <div class="note sold">
+      <div class="tape"></div>
+      <div class="cat">bicycles ▸ road</div>
+      <h2>Vintage Marinoni, 58 cm</h2>
+      <div class="price"><s>650</s> 615 €</div>
+      <div class="who">Tomáš H. <span class="star">★ 1204</span></div>
+      <div class="chips"><span class="chip public">talks now public</span></div>
+    </div>
+
+    <div class="note">
+      <div class="tape"></div>
+      <div class="cat">electronics ▸ audio</div>
+      <h2>Revox B77 reel-to-reel</h2>
+      <div class="price">380 €</div>
+      <div class="who">Jan W. <span class="star">★ 96</span></div>
+      <div class="chips"><span class="chip wish">wishlist match</span></div>
+      <div class="wish-note">← this is the one you asked for!</div>
+    </div>
+
+    <div class="note sold">
+      <div class="tape"></div>
+      <div class="cat">home ▸ ceramics</div>
+      <h2>Stoneware set, 12 pcs</h2>
+      <div class="price">95 €</div>
+      <div class="who">Petra V. <span class="star">★ 633</span></div>
+      <div class="chips"><span class="chip public">talks now public</span></div>
+    </div>
+
+  </div>
+
+  <!-- expanded sold listing -->
+  <section class="letter">
+    <div class="tape"></div>
+    <div class="letter-head">
+      <h2>Vintage Marinoni road bike, 58 cm</h2>
+      <div class="deal">shook hands at<br><b>615 €</b> · 21 Aug</div>
+    </div>
+    <div class="letter-body">
+      <div class="convo">
+        <h3>the talk — pinned open for everyone</h3>
+        <div class="msg">
+          <div class="who">buyer · j. vrbas <span class="star">★ 412</span></div>
+          <p>Is the groupset original? Any crashes in its life?</p>
+        </div>
+        <div class="msg">
+          <div class="who">seller · Tomáš H. <span class="star">★ 1204</span></div>
+          <p>Full Campagnolo Chorus, original. Never crashed — raced '14–'16, then hung on a wall.</p>
+        </div>
+        <div class="msg ai">
+          <div class="who">ai helper · whispering for the buyer</div>
+          <p>based on wear + past sales on this board, 615 € is fair for both — shall we shake on it?</p>
+        </div>
+        <div class="msg">
+          <div class="who">seller · Tomáš H. <span class="star">★ 1204</span></div>
+          <p>Deal. Thursday 18:00, by the old market hall?</p>
+        </div>
+        <div class="shook">…and they shook on it 🤝</div>
+      </div>
+      <aside class="margin">
+        <h3>in the margin</h3>
+        <div class="row"><span>seller</span><b>Tomáš H. <span class="star">★ 1204</span></b></div>
+        <div class="row"><span>buyer</span><b>j. vrbas <span class="star">★ 412</span></b></div>
+        <div class="row"><span>listed</span><b>03 Aug</b></div>
+        <div class="row"><span>sold</span><b>21 Aug</b></div>
+        <div class="row"><span>talks</span><b>7 · public</b></div>
+        <div class="row"><span>both said</span><b style="color:var(--green)">trustworthy ✓</b></div>
+        <p class="scribble">this note stays pinned here forever — that's the deal with this board.<br><br>
+        saw something fishy? <span class="flag">tell the board</span></p>
+      </aside>
+    </div>
+  </section>
+
+  <footer>nothing leaves the board · no money crosses it either — just people, words &amp; handshakes</footer>
+
+</div>
+</body>
+</html>

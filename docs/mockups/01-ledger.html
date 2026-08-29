@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vendandlog — concept 01 · the ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2eee3;
+    --paper-dark: #e7e1d0;
+    --ink: #1c1a16;
+    --ink-soft: #5c564a;
+    --rule: #b9b19d;
+    --stamp: #a83226;
+    --seal: #1d4d33;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    background-image: repeating-linear-gradient(0deg, transparent 0 27px, rgba(28,26,22,.045) 27px 28px);
+  }
+  .sheet { max-width: 1060px; margin: 0 auto; padding: 0 32px 96px; }
+
+  /* ── masthead ─────────────────────────── */
+  header.masthead {
+    border-bottom: 3px double var(--ink);
+    padding: 36px 0 20px;
+    display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .wordmark {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 42px; font-weight: 700; letter-spacing: -.02em;
+  }
+  .wordmark em { font-style: italic; font-weight: 400; }
+  .registry-no { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .14em; }
+  .motto {
+    width: 100%;
+    font-family: 'Libre Caslon Text', serif; font-style: italic;
+    color: var(--ink-soft); font-size: 15px; margin-top: 6px;
+  }
+  .account {
+    text-align: right; font-size: 12px; text-transform: uppercase; letter-spacing: .1em;
+  }
+  .account .karma { font-size: 22px; font-weight: 600; display: block; }
+  .account .karma::before { content: "trust № "; font-size: 10px; color: var(--ink-soft); letter-spacing: .14em; }
+
+  /* ── index / categories ───────────────── */
+  nav.index {
+    border-bottom: 1px solid var(--ink);
+    padding: 12px 0;
+    display: flex; gap: 26px; flex-wrap: wrap;
+    font-size: 12px; text-transform: uppercase; letter-spacing: .1em;
+  }
+  nav.index a { color: var(--ink); text-decoration: none; }
+  nav.index a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  nav.index .crumb { color: var(--ink-soft); }
+  nav.index .crumb b { color: var(--ink); font-weight: 600; }
+  nav.index .grow { flex: 1; }
+  nav.index .search { border-bottom: 1px solid var(--ink); min-width: 200px; color: var(--ink-soft); }
+
+  /* ── ledger table ─────────────────────── */
+  .ledger-head, .entry {
+    display: grid;
+    grid-template-columns: 92px 1fr 150px 110px 150px;
+    gap: 18px; align-items: baseline;
+  }
+  .ledger-head {
+    padding: 18px 0 8px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .16em; color: var(--ink-soft);
+    border-bottom: 1px solid var(--rule);
+  }
+  .entry {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .entry .no { color: var(--ink-soft); font-size: 12px; }
+  .entry h2 {
+    font-family: 'Libre Caslon Text', serif; font-size: 21px; font-weight: 700;
+    line-height: 1.25;
+  }
+  .entry .meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+  .entry .price { font-size: 19px; font-weight: 600; text-align: right; }
+  .entry .seller { font-size: 12px; text-align: right; }
+  .entry .seller .k { font-weight: 600; }
+  .badge {
+    display: inline-block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid var(--ink); padding: 2px 8px; margin-top: 6px;
+  }
+  .badge.public { border-color: var(--seal); color: var(--seal); }
+  .badge.wish { border-color: var(--stamp); color: var(--stamp); }
+
+  .stamp {
+    position: absolute; right: 130px; top: 8px;
+    font-family: 'Libre Caslon Text', serif; font-weight: 700;
+    color: var(--stamp); border: 3px double var(--stamp);
+    padding: 3px 14px; font-size: 18px; text-transform: uppercase; letter-spacing: .2em;
+    transform: rotate(-7deg);
+    opacity: .85; border-radius: 3px;
+    pointer-events: none;
+  }
+
+  /* ── expanded record ──────────────────── */
+  .record {
+    margin-top: 44px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper-dark);
+    box-shadow: 6px 6px 0 rgba(28,26,22,.12);
+  }
+  .record-head {
+    padding: 22px 28px;
+    border-bottom: 1.5px solid var(--ink);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  }
+  .record-head h1 { font-family: 'Libre Caslon Text', serif; font-size: 30px; }
+  .record-head .final { text-align: right; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
+  .record-head .final b { display: block; font-size: 24px; color: var(--ink); letter-spacing: 0; }
+  .record-body { display: grid; grid-template-columns: 1fr 300px; }
+  .convo { padding: 22px 28px; border-right: 1px solid var(--rule); }
+  .convo h3, .dossier h3 {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .convo h3 .unsealed { color: var(--seal); }
+  .msg { margin-bottom: 14px; max-width: 92%; }
+  .msg .who { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
+  .msg .who .k { color: var(--ink); font-weight: 600; }
+  .msg p { font-family: 'Libre Caslon Text', serif; font-size: 15px; }
+  .msg.ai {
+    border-left: 3px solid var(--stamp); padding-left: 12px;
+  }
+  .msg.ai .who { color: var(--stamp); }
+  .handshake {
+    margin-top: 20px; padding: 12px 16px; border: 1px dashed var(--ink);
+    font-size: 12px; text-transform: uppercase; letter-spacing: .12em; text-align: center;
+  }
+  .dossier { padding: 22px 28px; }
+  .dossier .row { display: flex; justify-content: space-between; font-size: 12px; padding: 7px 0; border-bottom: 1px dotted var(--rule); }
+  .dossier .row b { font-weight: 600; }
+  .verdict { margin-top: 18px; font-size: 12px; line-height: 1.7; }
+  .verdict .up { color: var(--seal); font-weight: 600; }
+  .flag { color: var(--stamp); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  footer { margin-top: 56px; padding-top: 14px; border-top: 3px double var(--ink); font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .12em; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <div>
+      <div class="registry-no">Public registry of exchange · est. 2026</div>
+      <div class="wordmark">vendand<em>log</em></div>
+      <div class="motto">Every listing, every word, kept on the record — forever.</div>
+    </div>
+    <div class="account">
+      <span class="karma">412</span>
+      filed as: j.vrbas · <a href="#">sign out</a>
+    </div>
+  </header>
+
+  <nav class="index">
+    <a href="#">Index</a>
+    <span class="crumb">Home ▸ Furniture ▸ <b>Chairs</b></span>
+    <a href="#">Electronics</a>
+    <a href="#">Bicycles</a>
+    <a href="#">+ New entry</a>
+    <span class="grow"></span>
+    <span class="search">Search the record…</span>
+  </nav>
+
+  <div class="ledger-head">
+    <span>Entry №</span><span>Goods</span><span>Standing</span><span style="text-align:right">Price</span><span style="text-align:right">Counterparty</span>
+  </div>
+
+  <article class="entry">
+    <span class="no">VLG-00571</span>
+    <div>
+      <h2>Oak dining table, seats six</h2>
+      <div class="meta">Home ▸ Furniture ▸ Tables · listed 12 Aug · 12 conversations held under seal</div>
+      <span class="badge">Open for offers</span>
+    </div>
+    <span></span>
+    <span class="price">240 €</span>
+    <div class="seller">Mária K.<br><span class="k">trust № 891</span></div>
+  </article>
+
+  <article class="entry">
+    <span class="no">VLG-00558</span>
+    <div>
+      <h2>Vintage Marinoni road bike, 58 cm</h2>
+      <div class="meta">Bicycles ▸ Road · listed 03 Aug · sold 21 Aug · 7 conversations unsealed</div>
+      <span class="badge public">Conversations public</span>
+    </div>
+    <span class="stamp">Sold</span>
+    <span class="price">650 €</span>
+    <div class="seller">Tomáš H.<br><span class="k">trust № 1204</span></div>
+  </article>
+
+  <article class="entry">
+    <span class="no">VLG-00577</span>
+    <div>
+      <h2>Revox B77 reel-to-reel, serviced</h2>
+      <div class="meta">Electronics ▸ Audio ▸ Reel-to-reel · listed today · 2 conversations held under seal</div>
+      <span class="badge wish">Matches your wishlist</span>
+    </div>
+    <span></span>
+    <span class="price">380 €</span>
+    <div class="seller">Jan W.<br><span class="k">trust № 96</span></div>
+  </article>
+
+  <article class="entry">
+    <span class="no">VLG-00549</span>
+    <div>
+      <h2>Hand-thrown stoneware set, 12 pcs</h2>
+      <div class="meta">Home ▸ Ceramics · listed 28 Jul · sold 19 Aug · 4 conversations unsealed</div>
+      <span class="badge public">Conversations public</span>
+    </div>
+    <span class="stamp">Sold</span>
+    <span class="price">95 €</span>
+    <div class="seller">Petra V.<br><span class="k">trust № 633</span></div>
+  </article>
+
+  <!-- ── expanded sold record ── -->
+  <section class="record">
+    <div class="record-head">
+      <div>
+        <div class="registry-no">Record VLG-00558 · unsealed 21 Aug 2026</div>
+        <h1>Vintage Marinoni road bike, 58 cm</h1>
+      </div>
+      <div class="final">Agreed price<b>615 €</b>listed 650 € · met in person</div>
+    </div>
+    <div class="record-body">
+      <div class="convo">
+        <h3>Conversation · <span class="unsealed">unsealed to the public</span></h3>
+        <div class="msg">
+          <div class="who">buyer · j.vrbas <span class="k">№ 412</span></div>
+          <p>Is the groupset original? Any crashes in its life?</p>
+        </div>
+        <div class="msg">
+          <div class="who">seller · Tomáš H. <span class="k">№ 1204</span></div>
+          <p>Full Campagnolo Chorus, original. Never crashed — I raced it '14–'16, then it hung on a wall.</p>
+        </div>
+        <div class="msg ai">
+          <div class="who">AI negotiator · acting for j.vrbas</div>
+          <p>Based on frame wear and market record, 615 € is fair. Seller, do you accept? Buyer is ready to meet this week.</p>
+        </div>
+        <div class="msg">
+          <div class="who">seller · Tomáš H. <span class="k">№ 1204</span></div>
+          <p>Deal. Thursday, 18:00, by the old market hall?</p>
+        </div>
+        <div class="handshake">🤝 handshake reached · the rest happened off the record, in person</div>
+      </div>
+      <aside class="dossier">
+        <h3>Dossier</h3>
+        <div class="row"><span>Seller</span><b>Tomáš H. № 1204</b></div>
+        <div class="row"><span>Buyer</span><b>j.vrbas № 412</b></div>
+        <div class="row"><span>Listed</span><b>03 Aug 2026</b></div>
+        <div class="row"><span>Sold</span><b>21 Aug 2026</b></div>
+        <div class="row"><span>Conversations</span><b>7 · all public</b></div>
+        <div class="verdict">
+          Both parties rated the exchange <span class="up">+ trustworthy</span>.<br>
+          This record cannot be removed.<br><br>
+          Something wrong here? <span class="flag">Flag this record</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <footer>
+    <span>vendandlog — the record stands</span>
+    <span>open api · no payments · no deletions</span>
+  </footer>
+
+</div>
+</body>
+</html>
