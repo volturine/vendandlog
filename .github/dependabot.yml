@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "bun"
+    directory: "/packages/frontend"
+    schedule:
+      interval: "monthly"
+    groups:
+      monthly-batch:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/packages/backend"
+    schedule:
+      interval: "monthly"
+    groups:
+      monthly-batch:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "monthly"
+    groups:
+      monthly-batch:
+        patterns:
+          - "*"
