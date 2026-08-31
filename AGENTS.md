@@ -40,6 +40,7 @@ just prod       # build frontend, FastAPI serves it + API from :8000
 just check      # ruff + svelte-check
 just test       # backend pytest (the soul invariants live in tests/test_api.py)
 just format     # ruff + prettier
+just hooks      # activate the pre-commit hook (ruff + prettier on staged files)
 just image      # linux/amd64 deployment image (docker/Dockerfile) → deploy via ~/Documents/workspace/deployments/vendandlog
 ```
 

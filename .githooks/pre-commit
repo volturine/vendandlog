@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-commit validation: format staged files with the project formatters
+# (ruff for backend, prettier for frontend) and block on unfixable issues.
+# Activate with `just hooks`.
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+backend_files=$(printf '%s\n' "$staged" | grep '^packages/backend/.*\.py$' || true)
+frontend_files=$(printf '%s\n' "$staged" | grep '^packages/frontend/' || true)
+
+if [ -n "$backend_files" ]; then
+	echo 'ruff: formatting staged backend files'
+	backend_rel=$(printf '%s\n' "$backend_files" | sed 's|^packages/backend/||')
+	printf '%s\n' "$backend_rel" | (cd packages/backend && xargs env -u VIRTUAL_ENV uv run ruff format)
+	printf '%s\n' "$backend_rel" | (cd packages/backend && xargs env -u VIRTUAL_ENV uv run ruff check --fix)
+	echo "$backend_files" | xargs git add --
+fi
+
+if [ -n "$frontend_files" ]; then
+	echo 'prettier: formatting staged frontend files'
+	printf '%s\n' "$frontend_files" | sed 's|^packages/frontend/||' | (cd packages/frontend && xargs bunx prettier --write --ignore-unknown)
+	echo "$frontend_files" | xargs git add --
+fi
