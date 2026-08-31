@@ -38,7 +38,14 @@
 			<label
 				class="flex w-full items-center gap-2 rounded-full border border-transparent bg-[var(--vdl-surface)] px-3.5 py-1.5 transition-colors hover:bg-[var(--vdl-surface-2)] focus-within:border-[var(--vdl-accent)] focus-within:bg-[var(--vdl-bg)] sm:px-4"
 			>
-				<svg class="h-4 w-4 shrink-0 text-[var(--vdl-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+				<svg
+					class="h-4 w-4 shrink-0 text-[var(--vdl-text-muted)]"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+				>
 					<circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
 				</svg>
 				<input
@@ -51,7 +58,14 @@
 
 		<div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
 			<a href="/listings/new" class="vdl-button vdl-button-primary hidden md:inline-flex">
-				<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+				<svg
+					class="h-4 w-4"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+				>
 					<path d="M12 5v14M5 12h14" />
 				</svg>
 				Post listing
@@ -61,7 +75,14 @@
 				class="grid h-9 w-9 place-items-center rounded-full text-[var(--vdl-accent)] transition-colors hover:bg-[var(--vdl-hover)] md:hidden"
 				aria-label="Post listing"
 			>
-				<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+				<svg
+					class="h-5 w-5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+				>
 					<path d="M12 5v14M5 12h14" />
 				</svg>
 			</a>
@@ -72,12 +93,28 @@
 				title="Toggle theme"
 			>
 				{#if session.theme === 'dark'}
-					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+					<svg
+						class="h-5 w-5"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+					>
 						<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
 					</svg>
 				{:else}
-					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-						<circle cx="12" cy="12" r="4.5" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8" />
+					<svg
+						class="h-5 w-5"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+					>
+						<circle cx="12" cy="12" r="4.5" /><path
+							d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"
+						/>
 					</svg>
 				{/if}
 			</button>
@@ -90,9 +127,15 @@
 							style="background:{session.me.avatar_color}"
 							title="@{session.me.handle}"
 						>
-							{session.me.name.split(' ').map((p) => p[0]).slice(0, 2).join('')}
+							{session.me.name
+								.split(' ')
+								.map((p) => p[0])
+								.slice(0, 2)
+								.join('')}
 						</summary>
-						<div class="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-xl border border-[var(--vdl-border-soft)] bg-[var(--vdl-bg)] shadow-[var(--vdl-elevation-popover)]">
+						<div
+							class="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-xl border border-[var(--vdl-border-soft)] bg-[var(--vdl-bg)] shadow-[var(--vdl-elevation-popover)]"
+						>
 							<div class="border-b border-[var(--vdl-border-soft)] px-4 py-3">
 								<p class="truncate text-[0.88rem] font-semibold">{session.me.name}</p>
 								<p class="text-[0.75rem] text-[var(--vdl-text-faint)]">@{session.me.handle}</p>

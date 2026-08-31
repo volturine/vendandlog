@@ -13,8 +13,8 @@ export const load: PageLoad = async ({ params, depends }) => {
 			listing.conversations.map(async (conversation) => {
 				// The payload only carries conversations the viewer may read, but stay
 				// defensive: one forbidden detail must not break the whole page.
-				details[conversation.id] = await api.conversation(conversation.id).catch(() => null);
-				if (!details[conversation.id]) delete details[conversation.id];
+				const detail = await api.conversation(conversation.id).catch(() => null);
+				if (detail) details[conversation.id] = detail;
 			})
 		);
 		return { listing, conversationDetails: details };

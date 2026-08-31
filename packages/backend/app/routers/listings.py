@@ -138,9 +138,7 @@ def _conversations_view(session: Session, listing: Listing, actor: str | None) -
     from app.readers import conversation_is_public, conversation_public
 
     view: list[dict] = []
-    for conversation in session.exec(
-        select(Conversation).where(Conversation.listing_id == listing.id)
-    ).all():
+    for conversation in session.exec(select(Conversation).where(Conversation.listing_id == listing.id)).all():
         participant = actor in {conversation.buyer_handle, listing.seller_handle}
         if conversation_is_public(session, conversation, listing) or participant:
             serialized = conversation_public(session, conversation)

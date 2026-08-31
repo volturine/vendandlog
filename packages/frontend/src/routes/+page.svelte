@@ -16,7 +16,12 @@
 
 	const categoryEntries = Object.entries(CATEGORY_COLORS).filter(([key]) => key !== 'other');
 
-	function buildUrl(next: { q?: string; category?: string; status?: string; sort?: string }): string {
+	function buildUrl(next: {
+		q?: string;
+		category?: string;
+		status?: string;
+		sort?: string;
+	}): string {
 		const merged = {
 			q: next.q ?? query.trim(),
 			category: next.category ?? data.category,
@@ -69,7 +74,9 @@
 
 	<!-- category chips -->
 	<div class="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:mb-5">
-		<button class="chip" class:on={data.category === 'all'} onclick={() => pickCategory('all')}>All</button>
+		<button class="chip" class:on={data.category === 'all'} onclick={() => pickCategory('all')}
+			>All</button
+		>
 		{#each categoryEntries as [key, color] (key)}
 			<button class="chip" class:on={data.category === key} onclick={() => pickCategory(key)}>
 				<span class="h-2 w-2 rounded-full" style="background:{color}"></span>
@@ -105,9 +112,27 @@
 					onclick={() => (view = 'grid')}
 					aria-label="Grid view"
 				>
-					<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<rect x="3" y="3" width="7.5" height="7.5" rx="1.5" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
-						<rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
+					<svg
+						class="h-4 w-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<rect x="3" y="3" width="7.5" height="7.5" rx="1.5" /><rect
+							x="13.5"
+							y="3"
+							width="7.5"
+							height="7.5"
+							rx="1.5"
+						/>
+						<rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" /><rect
+							x="13.5"
+							y="13.5"
+							width="7.5"
+							height="7.5"
+							rx="1.5"
+						/>
 					</svg>
 				</button>
 				<button
@@ -117,7 +142,14 @@
 					onclick={() => (view = 'list')}
 					aria-label="List view"
 				>
-					<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+					<svg
+						class="h-4 w-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+					>
 						<path d="M4 6h16M4 12h16M4 18h16" />
 					</svg>
 				</button>
@@ -134,10 +166,20 @@
 	{:else}
 		<div class="vdl-card divide-y divide-[var(--vdl-border-soft)] overflow-hidden !rounded-xl">
 			{#each data.listings as listing, i (listing.id)}
-				<a href="/listings/{listing.id}" class="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[var(--vdl-surface)]">
-					<span class="w-6 shrink-0 pt-0.5 text-right text-[0.82rem] text-[var(--vdl-text-faint)]">{i + 1}.</span>
+				<a
+					href="/listings/{listing.id}"
+					class="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[var(--vdl-surface)]"
+				>
+					<span class="w-6 shrink-0 pt-0.5 text-right text-[0.82rem] text-[var(--vdl-text-faint)]"
+						>{i + 1}.</span
+					>
 					{#if listing.image_url}
-						<img src={listing.image_url} alt="" class="h-[52px] w-[70px] shrink-0 rounded object-cover" loading="lazy" />
+						<img
+							src={listing.image_url}
+							alt=""
+							class="h-[52px] w-[70px] shrink-0 rounded object-cover"
+							loading="lazy"
+						/>
 					{/if}
 					<div class="min-w-0 flex-1">
 						<p class="text-[0.92rem] font-medium leading-snug">
@@ -147,29 +189,50 @@
 								<span class="vdl-pill vdl-pill-green ml-1">SOLD</span>
 							{/if}
 						</p>
-						<p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.74rem] text-[var(--vdl-text-faint)]">
-							<span class="font-semibold text-[var(--vdl-text-muted)]">{listing.seller.handle} · {listing.seller.trust_score}</span>
+						<p
+							class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.74rem] text-[var(--vdl-text-faint)]"
+						>
+							<span class="font-semibold text-[var(--vdl-text-muted)]"
+								>{listing.seller.handle} · {listing.seller.trust_score}</span
+							>
 							<span>{listing.location}</span>
 							<span>{listing.event_count} events in log</span>
 							{#if listing.public_conversation_count > 0}
-								<span class="text-[var(--vdl-accent)]">{listing.public_conversation_count} conversations public</span>
+								<span class="text-[var(--vdl-accent)]"
+									>{listing.public_conversation_count} conversations public</span
+								>
 							{/if}
 						</p>
 					</div>
 					<div class="flex shrink-0 flex-col items-end text-[0.72rem] text-[var(--vdl-text-faint)]">
 						<span class="flex items-center gap-1 font-semibold text-[var(--vdl-text-muted)]">
-							<svg class="h-3 w-3 text-[var(--vdl-accent)]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 14H4z" /></svg>
+							<svg class="h-3 w-3 text-[var(--vdl-accent)]" viewBox="0 0 24 24" fill="currentColor"
+								><path d="M12 4l8 14H4z" /></svg
+							>
 							{listing.event_count * 7 + 5}
 						</span>
-						<span>{listing.last_event ? timeAgo(listing.last_event.created_at) : timeAgo(listing.updated_at)}</span>
+						<span
+							>{listing.last_event
+								? timeAgo(listing.last_event.created_at)
+								: timeAgo(listing.updated_at)}</span
+						>
 					</div>
 				</a>
 			{/each}
 		</div>
 	{/if}
 
-	<div class="mt-8 flex items-center gap-2 rounded-xl border border-dashed border-[var(--vdl-border)] bg-[var(--vdl-surface)] px-4 py-3 text-[0.8rem] text-[var(--vdl-text-muted)]">
-		<svg class="h-4 w-4 shrink-0 text-[var(--vdl-accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+	<div
+		class="mt-8 flex items-center gap-2 rounded-xl border border-dashed border-[var(--vdl-border)] bg-[var(--vdl-surface)] px-4 py-3 text-[0.8rem] text-[var(--vdl-text-muted)]"
+	>
+		<svg
+			class="h-4 w-4 shrink-0 text-[var(--vdl-accent)]"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+		>
 			<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z" /><path d="M9 12l2 2 4-4" />
 		</svg>
 		Nothing here can be quietly deleted. Sold listings, negotiations and ratings stay public.
