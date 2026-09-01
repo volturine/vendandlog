@@ -44,9 +44,13 @@
 	</p>
 
 	{#if session.me}
-		<div class="mt-6 rounded-xl border border-[var(--vdl-border-soft)] bg-[var(--vdl-surface)] p-4 text-[0.88rem]">
+		<div
+			class="mt-6 rounded-xl border border-[var(--vdl-border-soft)] bg-[var(--vdl-surface)] p-4 text-[0.88rem]"
+		>
 			You are signed in as <b>@{session.me.handle}</b>.
-			<button class="text-[var(--vdl-accent)] underline" onclick={() => session.logout()}>Sign out</button>
+			<button class="text-[var(--vdl-accent)] underline" onclick={() => session.logout()}
+				>Sign out</button
+			>
 			first to switch accounts.
 		</div>
 	{:else}
@@ -70,11 +74,21 @@
 			</label>
 			<label class="block">
 				<span class="mb-1 block text-[0.78rem] font-semibold">Password</span>
-				<input class="vdl-input w-full" type="password" bind:value={password} required minlength={4} />
+				<input
+					class="vdl-input w-full"
+					type="password"
+					bind:value={password}
+					required
+					minlength={4}
+				/>
 			</label>
 
 			{#if error}
-				<p class="rounded-lg bg-[var(--vdl-danger-subtle)] p-3 text-[0.85rem] text-[var(--vdl-danger)]">{error}</p>
+				<p
+					class="rounded-lg bg-[var(--vdl-danger-subtle)] p-3 text-[0.85rem] text-[var(--vdl-danger)]"
+				>
+					{error}
+				</p>
 			{/if}
 
 			<button class="vdl-button vdl-button-primary w-full" disabled={busy || !handle || !password}>
@@ -85,20 +99,31 @@
 		<p class="mt-4 text-center text-[0.85rem] text-[var(--vdl-text-muted)]">
 			{#if mode === 'login'}
 				New here?
-				<button class="font-semibold text-[var(--vdl-accent)] hover:underline" onclick={() => ((mode = 'register'), (error = null))}>
+				<button
+					class="font-semibold text-[var(--vdl-accent)] hover:underline"
+					onclick={() => ((mode = 'register'), (error = null))}
+				>
 					Create an account
 				</button>
 			{:else}
 				Already have an account?
-				<button class="font-semibold text-[var(--vdl-accent)] hover:underline" onclick={() => ((mode = 'login'), (error = null))}>
+				<button
+					class="font-semibold text-[var(--vdl-accent)] hover:underline"
+					onclick={() => ((mode = 'login'), (error = null))}
+				>
 					Sign in
 				</button>
 			{/if}
 		</p>
 
 		{#if mode === 'login'}
-			<p class="mt-6 rounded-xl border border-dashed border-[var(--vdl-border)] bg-[var(--vdl-surface)] p-3.5 text-center text-[0.78rem] text-[var(--vdl-text-faint)]">
-				Demo data: try <b class="text-[var(--vdl-text-muted)]">jana.b</b>, <b class="text-[var(--vdl-text-muted)]">milan</b> or <b class="text-[var(--vdl-text-muted)]">lea_rides</b> — password <b class="text-[var(--vdl-text-muted)]">demo</b>
+			<p
+				class="mt-6 rounded-xl border border-dashed border-[var(--vdl-border)] bg-[var(--vdl-surface)] p-3.5 text-center text-[0.78rem] text-[var(--vdl-text-faint)]"
+			>
+				Demo data: try <b class="text-[var(--vdl-text-muted)]">jana.b</b>,
+				<b class="text-[var(--vdl-text-muted)]">milan</b>
+				or <b class="text-[var(--vdl-text-muted)]">lea_rides</b> — password
+				<b class="text-[var(--vdl-text-muted)]">demo</b>
 			</p>
 		{/if}
 	{/if}

@@ -314,10 +314,7 @@ def _seed(session: Session) -> None:
     boxes = add(
         Listing(
             title='Moving boxes, packing paper — free if you pick up today',
-            description=(
-                'Just moved in, a dozen sturdy boxes and two rolls of packing paper left over. '
-                'Yours if you collect them this week.'
-            ),
+            description=('Just moved in, a dozen sturdy boxes and two rolls of packing paper left over. Yours if you collect them this week.'),
             price_cents=0,
             condition=Condition.good,
             category='books',

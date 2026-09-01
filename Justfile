@@ -40,6 +40,10 @@ format:
     cd packages/backend && env -u VIRTUAL_ENV uv run ruff format app tests && env -u VIRTUAL_ENV uv run ruff check app tests --fix
     cd packages/frontend && bun run format
 
+# Activate the pre-commit hook (formats staged files: ruff + prettier).
+hooks:
+    git config core.hooksPath .githooks
+
 test:
     cd packages/backend && env -u VIRTUAL_ENV uv run python -m pytest -q
 
