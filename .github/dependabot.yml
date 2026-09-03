@@ -17,6 +17,11 @@ updates:
       monthly-batch:
         patterns:
           - "*"
+    # svelte-check and @sveltejs/kit still require the JS compiler (TypeScript 6).
+    # TypeScript 7 is the native Go port without a stable programmatic API.
+    ignore:
+      - dependency-name: "typescript"
+        versions: [">=7"]
 
   - package-ecosystem: "pip"
     directory: "/packages/backend"
